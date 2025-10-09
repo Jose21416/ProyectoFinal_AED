@@ -4,19 +4,50 @@
  */
 package Interfaces;
 
-/**
- *
- * @author HOME
- */
+import Conexionbd.Consultas;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 public class MantenimientoAlumnos extends javax.swing.JFrame {
 
-    /**
-     * Creates new form MantenimientoAlumnos
-     */
+    Consultas consulta = new Consultas();
+    DefaultTableModel modelo;
     public MantenimientoAlumnos() {
         initComponents();
+        this.setLocationRelativeTo(null);
+        listarAlumnos();
+        jTextField7.setEditable(false);
     }
-
+     void limpiarCampos() {
+        jTextField7.setText(""); // ID
+        jTextField2.setText(""); // Nombres
+        jTextField6.setText(""); // Apellidos
+        jTextField1.setText(""); // DNI
+        jTextField3.setText(""); // Edad
+        jTextField4.setText(""); // Celular
+    }
+    void listarAlumnos() {
+        modelo = (DefaultTableModel) jTable1.getModel();
+        modelo.setRowCount(0);
+        
+        try {
+            ResultSet rs = consulta.listarAlumnos();
+            while (rs.next()) {
+                Object[] fila = new Object[7];
+                fila[0] = rs.getInt("idAlumno");
+                fila[1] = rs.getString("nombre");
+                fila[2] = rs.getString("apellidos");
+                fila[3]=rs.getString("dni");
+                fila[4] = rs.getInt("edad");
+                fila[5] = rs.getInt("celular");
+                fila[6] = rs.getInt("estado") == 1 ? "Activo" : "Inactivo";
+                modelo.addRow(fila);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al listar alumnos: " + e.getMessage());
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -102,6 +133,11 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
         jButton4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jButton4.setForeground(new java.awt.Color(255, 255, 255));
         jButton4.setText("LIMPIAR");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         jTable1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -109,7 +145,7 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
 
             },
             new String [] {
-                "ID", "Nombres", "Apellidos", "Edad", "Celular", "Estado"
+                "ID", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
             }
         ));
         jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -222,8 +258,20 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
-        // TODO add your handling code here:
+        int fila = jTable1.getSelectedRow();
+        if (fila >= 0) {
+            jTextField7.setText(jTable1.getValueAt(fila, 0).toString()); // ID
+            jTextField2.setText(jTable1.getValueAt(fila, 1).toString()); // Nombres
+            jTextField6.setText(jTable1.getValueAt(fila, 2).toString()); // Apellidos
+            jTextField1.setText(jTable1.getValueAt(fila, 3).toString()); //DNI
+            jTextField3.setText(jTable1.getValueAt(fila, 4).toString()); // Edad
+            jTextField4.setText(jTable1.getValueAt(fila, 5).toString()); // Celular
+        }
     }//GEN-LAST:event_jTable1MouseClicked
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+       limpiarCampos();
+    }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
      * @param args the command line arguments
