@@ -28,7 +28,7 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
         txtCelular.setText(""); // Celular
     }
     void listarAlumnos() {
-        modelo = (DefaultTableModel) jTable1.getModel();
+        modelo = (DefaultTableModel) tblAlumnos.getModel();
         modelo.setRowCount(0);
         
         try {
@@ -115,7 +115,7 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
         btnEliminar = new javax.swing.JButton();
         btnLimpiar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblAlumnos = new javax.swing.JTable();
 
         setResizable(false);
 
@@ -194,8 +194,8 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
             }
         });
 
-        jTable1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblAlumnos.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        tblAlumnos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -203,12 +203,12 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
                 "ID", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
             }
         ));
-        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+        tblAlumnos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jTable1MouseClicked(evt);
+                tblAlumnosMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tblAlumnos);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -312,17 +312,17 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
-        int fila = jTable1.getSelectedRow();
+    private void tblAlumnosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblAlumnosMouseClicked
+        int fila = tblAlumnos.getSelectedRow();
         if (fila >= 0) {
-            txtId.setText(jTable1.getValueAt(fila, 0).toString()); // ID
-            txtNombre.setText(jTable1.getValueAt(fila, 1).toString()); // Nombres
-            txtApellidos.setText(jTable1.getValueAt(fila, 2).toString()); // Apellidos
-            txtDni.setText(jTable1.getValueAt(fila, 3).toString()); //DNI
-            txtEdad.setText(jTable1.getValueAt(fila, 4).toString()); // Edad
-            txtCelular.setText(jTable1.getValueAt(fila, 5).toString()); // Celular
+            txtId.setText(tblAlumnos.getValueAt(fila, 0).toString()); // ID
+            txtNombre.setText(tblAlumnos.getValueAt(fila, 1).toString()); // Nombres
+            txtApellidos.setText(tblAlumnos.getValueAt(fila, 2).toString()); // Apellidos
+            txtDni.setText(tblAlumnos.getValueAt(fila, 3).toString()); //DNI
+            txtEdad.setText(tblAlumnos.getValueAt(fila, 4).toString()); // Edad
+            txtCelular.setText(tblAlumnos.getValueAt(fila, 5).toString()); // Celular
         }
-    }//GEN-LAST:event_jTable1MouseClicked
+    }//GEN-LAST:event_tblAlumnosMouseClicked
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
        limpiarCampos();
@@ -454,7 +454,7 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable tblAlumnos;
     private javax.swing.JTextField txtApellidos;
     private javax.swing.JTextField txtCelular;
     private javax.swing.JTextField txtDni;
