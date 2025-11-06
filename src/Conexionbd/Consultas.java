@@ -309,7 +309,8 @@ public class Consultas {
         FROM Matricula m
         JOIN Alumno a ON m.idAlumno = a.idAlumno
         JOIN Curso c ON m.idCurso = c.idCurso
-        ORDER BY m.idMatricula DESC
+        WHERE a.estado = 1
+        ORDER BY m.idMatricula ASC
     """;
         try {
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
@@ -353,7 +354,7 @@ public class Consultas {
         FROM Matricula m
         JOIN Curso c ON m.idCurso = c.idCurso
         WHERE m.idAlumno=?
-        ORDER BY m.fecha DESC
+        ORDER BY m.fecha ASC
     """;
         try {
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
@@ -366,7 +367,7 @@ public class Consultas {
     }
 
     // ==================== MÉTODOS PARA RETIRO ====================
-//  Registrar Retiro
+    //  Registrar Retiro
     public boolean insertarRetiro(int idMatricula) {
         String verificar = "SELECT * FROM Retiro WHERE idMatricula=?";
         String insertar = "INSERT INTO Retiro(fecha, hora, idMatricula) VALUES (?, ?, ?)";
@@ -380,31 +381,31 @@ public class Consultas {
             Connection cn = conexion.getConnection();
 
             // Verificar si ya existe retiro de esa matrícula
-            PreparedStatement psVerif = cn.prepareStatement(verificar);
-            psVerif.setInt(1, idMatricula);
-            ResultSet rs = psVerif.executeQuery();
-            if (rs.next()) {
-                System.out.println("La matrícula ya tiene un retiro registrado.");
-                psVerif.close();
-                return false;
+            try (PreparedStatement psVerif = cn.prepareStatement(verificar)) {
+                psVerif.setInt(1, idMatricula);
+                try (ResultSet rs = psVerif.executeQuery()) {
+                    if (rs.next()) {
+                        System.out.println("La matrícula ya tiene un retiro registrado.");
+                        return false;
+                    }
+                }
             }
-            psVerif.close();
 
             // Insertar nuevo retiro
-            PreparedStatement ps = cn.prepareStatement(insertar);
-            ps.setDate(1, java.sql.Date.valueOf(java.time.LocalDate.now()));
-            ps.setTime(2, java.sql.Time.valueOf(java.time.LocalTime.now()));
-            ps.setInt(3, idMatricula);
-            int filas = ps.executeUpdate();
+            try (PreparedStatement ps = cn.prepareStatement(insertar)) {
+                ps.setDate(1, java.sql.Date.valueOf(java.time.LocalDate.now()));
+                ps.setTime(2, java.sql.Time.valueOf(java.time.LocalTime.now()));
+                ps.setInt(3, idMatricula);
+                ps.executeUpdate();
+            }
 
-            // Actualizar estado del alumno a retirado (2)
-            PreparedStatement ps2 = cn.prepareStatement(actualizarEstado);
-            ps2.setInt(1, idMatricula);
-            ps2.executeUpdate();
+            // Cambiar el estado del alumno a retirado (2)
+            try (PreparedStatement ps2 = cn.prepareStatement(actualizarEstado)) {
+                ps2.setInt(1, idMatricula);
+                ps2.executeUpdate();
+            }
 
-            ps.close();
-            ps2.close();
-            return filas > 0;
+            return true;
 
         } catch (SQLException e) {
             System.out.println("Error al insertar retiro: " + e.getMessage());
@@ -412,7 +413,7 @@ public class Consultas {
         }
     }
 
-// 2️⃣ Listar Retiros
+//  Listar Retiros
     public ResultSet listarRetiros() {
         String sql = """
         SELECT 
@@ -426,7 +427,8 @@ public class Consultas {
         JOIN Matricula m ON r.idMatricula = m.idMatricula
         JOIN Alumno a ON m.idAlumno = a.idAlumno
         JOIN Curso c ON m.idCurso = c.idCurso
-        ORDER BY r.idRetiro DESC
+        WHERE a.estado = 2
+        ORDER BY r.idRetiro ASC
     """;
         try {
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
@@ -516,12 +518,12 @@ public class Consultas {
                 ps1.setInt(1, idMatriculaNueva);
                 try (ResultSet rs = ps1.executeQuery()) {
                     if (!rs.next()) {
-                        System.out.println("⚠️ No existe la matrícula destino.");
+                        System.out.println("No existe la matrícula destino.");
                         return false;
                     }
                     int estado = rs.getInt("estado");
                     if (estado != 2) {
-                        System.out.println("⚠️ Solo puede asociar el retiro a una matrícula cuyo alumno esté en estado 2 (retirado).");
+                        System.out.println("Solo puede asociar el retiro a una matrícula cuyo alumno esté en estado 2 (retirado).");
                         return false;
                     }
                 }
@@ -533,7 +535,7 @@ public class Consultas {
                 ps2.setInt(2, idRetiro);
                 try (ResultSet rs = ps2.executeQuery()) {
                     if (rs.next()) {
-                        System.out.println("⚠️ Ya existe un retiro para esa matrícula.");
+                        System.out.println("Ya existe un retiro para esa matrícula.");
                         return false;
                     }
                 }
