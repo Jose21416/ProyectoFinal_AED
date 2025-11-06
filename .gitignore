@@ -1,0 +1,47 @@
+# ===============================
+# IGNORAR ARCHIVOS DE NETBEANS
+# ===============================
+nbproject/private/
+nbproject/private/*
+nbproject/configs/
+nbproject/Makefile-*
+build/
+dist/
+nbbuild/
+nbdist/
+build.xml~
+manifest.mf~
+
+# ===============================
+# IGNORAR ARCHIVOS DE COMPILACIÓN
+# ===============================
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# ===============================
+# IGNORAR CONFIGURACIONES DEL SISTEMA
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# IGNORAR ARCHIVOS TEMPORALES DE IDEs
+# ===============================
+*.log
+*.bak
+*.swp
+*.tmp
+*.iml
+.idea/
+.vscode/
+
+# ===============================
+# IGNORAR LIBRERÍAS DESCARGADAS
+# ===============================
+lib/
