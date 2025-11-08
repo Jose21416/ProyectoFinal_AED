@@ -142,7 +142,8 @@ public class Retiro extends javax.swing.JFrame {
                 JOIN Matricula m ON r.idMatricula = m.idMatricula
                 JOIN Alumno a ON m.idAlumno = a.idAlumno
                 JOIN Curso c ON m.idCurso = c.idCurso
-                WHERE a.nombre LIKE ? OR r.idRetiro LIKE ?
+                WHERE (a.nombre LIKE ? OR r.idRetiro LIKE ?)
+                  AND a.estado = 2
             """;
             PreparedStatement ps = consultas.getConnection().prepareStatement(sql);
             ps.setString(1, "%" + texto + "%");

@@ -321,51 +321,6 @@ public class Consultas {
         }
     }
 
-//  Buscar matrícula por ID
-    public ResultSet buscarMatriculaPorId(int idMatricula) {
-        String sql = """
-        SELECT 
-            m.idMatricula,
-            a.nombre, a.apellidos,
-            c.asignatura,
-            m.fecha, m.hora
-        FROM Matricula m
-        JOIN Alumno a ON m.idAlumno = a.idAlumno
-        JOIN Curso c ON m.idCurso = c.idCurso
-        WHERE m.idMatricula=?
-    """;
-        try {
-            PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
-            ps.setInt(1, idMatricula);
-            return ps.executeQuery();
-        } catch (SQLException e) {
-            System.out.println("Error al buscar matrícula: " + e.getMessage());
-            return null;
-        }
-    }
-
-//  Buscar matrículas por Alumno
-    public ResultSet buscarMatriculasPorAlumno(int idAlumno) {
-        String sql = """
-        SELECT 
-            m.idMatricula,
-            c.asignatura AS curso_asignatura,
-            m.fecha, m.hora
-        FROM Matricula m
-        JOIN Curso c ON m.idCurso = c.idCurso
-        WHERE m.idAlumno=?
-        ORDER BY m.fecha ASC
-    """;
-        try {
-            PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
-            ps.setInt(1, idAlumno);
-            return ps.executeQuery();
-        } catch (SQLException e) {
-            System.out.println("Error al buscar matrículas por alumno: " + e.getMessage());
-            return null;
-        }
-    }
-
     // ==================== MÉTODOS PARA RETIRO ====================
     //  Registrar Retiro
     public boolean insertarRetiro(int idMatricula) {

@@ -196,7 +196,8 @@ public class Matricula extends javax.swing.JFrame {
                 FROM Matricula m
                 JOIN Alumno a ON m.idAlumno = a.idAlumno
                 JOIN Curso c ON m.idCurso = c.idCurso
-                WHERE a.nombre LIKE ? OR m.idMatricula LIKE ?
+                WHERE (a.nombre LIKE ? OR m.idMatricula LIKE ?)
+                    AND a.estado = 1
             """;
             PreparedStatement ps = consultas.getConnection().prepareStatement(sql);
             ps.setString(1, "%" + texto + "%");
