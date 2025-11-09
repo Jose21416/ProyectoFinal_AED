@@ -373,6 +373,7 @@ public class Consultas {
         String sql = """
         SELECT 
             r.idRetiro,
+            r.idMatricula,
             a.nombre AS alumno_nombre,
             a.apellidos AS alumno_apellidos,
             c.asignatura AS curso_asignatura,
@@ -443,71 +444,6 @@ public class Consultas {
 
         } catch (SQLException e) {
             System.out.println("Error al eliminar retiro: " + e.getMessage());
-            return false;
-        }
-    }
-
-    // MODIFICAR RETIRO
-    public boolean actualizarRetiro(int idRetiro, int idMatriculaNueva) {
-        String sqlEstadoAlumnoNueva = """
-        SELECT a.estado
-        FROM Alumno a
-        JOIN Matricula m ON a.idAlumno = m.idAlumno
-        WHERE m.idMatricula = ?
-    """;
-
-        String sqlExisteOtroRetiro = """
-        SELECT 1
-        FROM Retiro
-        WHERE idMatricula = ? AND idRetiro <> ?
-        LIMIT 1
-    """;
-
-        String sqlUpdate = "UPDATE Retiro SET idMatricula = ?, fecha = ?, hora = ? WHERE idRetiro = ?";
-
-        try {
-            Connection cn = conexion.getConnection();
-
-            // 1) Verificar que la matrícula nueva pertenece a un alumno retirado (estado=2)
-            try (PreparedStatement ps1 = cn.prepareStatement(sqlEstadoAlumnoNueva)) {
-                ps1.setInt(1, idMatriculaNueva);
-                try (ResultSet rs = ps1.executeQuery()) {
-                    if (!rs.next()) {
-                        System.out.println("No existe la matrícula destino.");
-                        return false;
-                    }
-                    int estado = rs.getInt("estado");
-                    if (estado != 2) {
-                        System.out.println("Solo puede asociar el retiro a una matrícula cuyo alumno esté en estado 2 (retirado).");
-                        return false;
-                    }
-                }
-            }
-
-            // 2) Evitar duplicar retiro para la misma matrícula
-            try (PreparedStatement ps2 = cn.prepareStatement(sqlExisteOtroRetiro)) {
-                ps2.setInt(1, idMatriculaNueva);
-                ps2.setInt(2, idRetiro);
-                try (ResultSet rs = ps2.executeQuery()) {
-                    if (rs.next()) {
-                        System.out.println("Ya existe un retiro para esa matrícula.");
-                        return false;
-                    }
-                }
-            }
-
-            // 3) Actualizar idMatricula y la fecha/hora del sistema
-            try (PreparedStatement ps3 = cn.prepareStatement(sqlUpdate)) {
-                ps3.setInt(1, idMatriculaNueva);
-                ps3.setDate(2, java.sql.Date.valueOf(java.time.LocalDate.now()));
-                ps3.setTime(3, java.sql.Time.valueOf(java.time.LocalTime.now()));
-                ps3.setInt(4, idRetiro);
-                int filas = ps3.executeUpdate();
-                return filas > 0;
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error al actualizar retiro: " + e.getMessage());
             return false;
         }
     }
