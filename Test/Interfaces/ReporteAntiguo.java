@@ -10,12 +10,12 @@ import Interfaces.MantenimientoAlumnos;
  *
  * @author HOME
  */
-public class Reporte extends javax.swing.JFrame {
+public class ReporteAntiguo extends javax.swing.JFrame {
 
     /**
      * Creates new form MantenimientoAlumnos
      */
-    public Reporte() {
+    public ReporteAntiguo() {
         initComponents();
     }
 
