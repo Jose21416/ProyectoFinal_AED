@@ -116,12 +116,12 @@
                           <Component id="jLabel50" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="jLabel51" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jTextField29" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
                               <Component id="jButton32" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
                               <Component id="jLabel52" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jTextField32" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
                               <Component id="jButton29" alignment="3" min="-2" pref="40" max="-2" attributes="0"/>
+                              <Component id="jLabel51" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace pref="428" max="32767" attributes="0"/>
                       </Group>

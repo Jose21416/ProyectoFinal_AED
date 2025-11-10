@@ -449,7 +449,10 @@ public class Consultas {
     }
 
     public ResultSet listarMatriculaPendiente() {
-        String sql = "select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,a.estado from alumno a left join matricula m on a.idAlumno=m.idAlumno where m.idMatricula is null";
+        String sql = """
+                     select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,
+                     a.estado from alumno a left join matricula m on a.idAlumno=m.idAlumno 
+                     where m.idMatricula is null""";
         try {
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
             return ps.executeQuery();
@@ -460,7 +463,10 @@ public class Consultas {
     }
 
     public ResultSet listarMatriculaVigente() {
-        String sql = "select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,a.estado from alumno a left join matricula m on a.idAlumno=m.idAlumno where not(m.idMatricula is null)";
+        String sql = """
+                     select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,
+                     a.estado from alumno a left join matricula m on a.idAlumno=m.idAlumno 
+                     where not(m.idMatricula is null)""";
         try {
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
             return ps.executeQuery();
