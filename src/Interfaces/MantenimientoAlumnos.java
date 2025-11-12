@@ -335,7 +335,7 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
             String dni = txtDni.getText().trim();
             int edad = Integer.parseInt(txtEdad.getText().trim());
             int celular = Integer.parseInt(txtCelular.getText().trim());
-            int estado = 1; // Por defecto activo
+            int estado = 0; // Por defecto activo
             
             if (consulta.insertarAlumno(nombre, apellidos, dni, edad, celular, estado)) {
                 JOptionPane.showMessageDialog(null, "Alumno registrado exitosamente");

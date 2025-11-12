@@ -63,7 +63,6 @@ public class Reporte extends javax.swing.JFrame {
                 fila[3]=rs.getString("dni");
                 fila[4] = rs.getInt("edad");
                 fila[5] = rs.getInt("celular");
-                fila[6] = rs.getInt("estado") == 1 ? "Activo" : "Inactivo";
                 modelo.addRow(fila);
             }
         } catch (Exception e) {
@@ -387,11 +386,11 @@ public class Reporte extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Id", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
+                "Id", "Nombres", "Apellidos", "DNI", "Edad", "Celular"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                true, true, false, false, false, false, false
+                true, true, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -407,7 +406,6 @@ public class Reporte extends javax.swing.JFrame {
         if (tblMaticulaPendiente.getColumnModel().getColumnCount() > 0) {
             tblMaticulaPendiente.getColumnModel().getColumn(3).setResizable(false);
             tblMaticulaPendiente.getColumnModel().getColumn(5).setResizable(false);
-            tblMaticulaPendiente.getColumnModel().getColumn(6).setResizable(false);
         }
 
         javax.swing.GroupLayout jMatriculaPendienteLayout = new javax.swing.GroupLayout(jMatriculaPendiente);
