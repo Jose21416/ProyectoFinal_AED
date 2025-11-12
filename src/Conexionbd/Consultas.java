@@ -452,7 +452,7 @@ public class Consultas {
         String sql = """
                      select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular
                      from alumno a left join matricula m on a.idAlumno=m.idAlumno 
-                     where m.idMatricula is null or a.estado=0 """;
+                     where m.idMatricula is null or a.estado=0""";
         try {
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
             return ps.executeQuery();
