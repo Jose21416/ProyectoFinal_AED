@@ -192,7 +192,7 @@ public class MenuInicio extends javax.swing.JFrame {
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
         // TODO add your handling code here:
-         Consultas M= new Consultas();
+         Consulta M= new Consulta();
         M.setVisible(true);
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
