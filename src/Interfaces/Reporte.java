@@ -298,7 +298,7 @@ public class Reporte extends javax.swing.JFrame {
         jCantidadDeAlumnosPorCurso.setLayout(new BorderLayout());
         jCantidadDeAlumnosPorCurso.add(panel, BorderLayout.CENTER);
         jCantidadDeAlumnosPorCurso.validate();
-        jCantidadDeAlumnosPorCurso.repaint();
+        jCantidadDeAlumnosPorCurso.repaint(); 
         
     } catch (Exception e) {
         e.printStackTrace();
