@@ -32,11 +32,11 @@ import org.jfree.data.category.DefaultCategoryDataset;
  *
  * @author leand
  */
-public class Reporte extends javax.swing.JFrame {
+public final class Reporte extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Reporte.class.getName());
 
-    Conexionbd.Consultas consulta = new Conexionbd.Consultas();
+    Metodos.Consultas consulta = new Metodos.Consultas();
     DefaultTableModel modelo;
     
     

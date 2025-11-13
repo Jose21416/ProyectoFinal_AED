@@ -4,7 +4,7 @@
  */
 package Interfaces;
 
-import Conexionbd.Consultas;
+import Metodos.Consultas;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;

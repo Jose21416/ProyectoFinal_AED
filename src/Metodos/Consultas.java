@@ -1,5 +1,6 @@
-package Conexionbd;
+package Metodos;
 
+import Conexionbd.Conexionbd;
 import Datos.DMatricula;
 import java.sql.*;
 import java.time.LocalDate;
