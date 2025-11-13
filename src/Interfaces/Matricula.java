@@ -51,7 +51,7 @@ public class Matricula extends javax.swing.JFrame {
 
     private void cargarAlumnos() {
         try {
-            ResultSet rs = consultas.listarAlumnos();
+            ResultSet rs = consultas.listarAlumnos2();
             cmbAlumno.removeAllItems();
             cmbAlumno.addItem("Elija un alumno"); // Texto inicial
             while (rs.next()) {
@@ -491,6 +491,7 @@ public class Matricula extends javax.swing.JFrame {
 
     private void btnRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarActionPerformed
         registrarMatricula();
+        cargarAlumnos();
     }//GEN-LAST:event_btnRegistrarActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed

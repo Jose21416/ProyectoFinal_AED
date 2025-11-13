@@ -82,6 +82,17 @@ public class Consultas {
         }
     }
 
+    public ResultSet listarAlumnos2() {
+        String sql = "SELECT * FROM Alumno where estado=0";
+        try {
+            PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
+            return ps.executeQuery();
+        } catch (SQLException e) {
+            System.out.println("Error al listar alumnos: " + e.getMessage());
+            return null;
+        }
+    }
+
     public ResultSet buscarAlumnoPorId(int idAlumno) {
         String sql = "SELECT * FROM Alumno WHERE idAlumno=?";
         try {
@@ -167,6 +178,7 @@ public class Consultas {
         }
     }
 
+    
     public ResultSet buscarCursoPorId(int idCurso) {
         String sql = "SELECT * FROM Curso WHERE idCurso=?";
         try {
