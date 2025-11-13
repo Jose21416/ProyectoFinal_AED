@@ -1,4 +1,4 @@
-package Metodos;
+package Logica;
 
 import Conexionbd.Conexionbd;
 import Datos.DMatricula;

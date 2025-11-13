@@ -4,7 +4,7 @@
  */
 package Interfaces;
 
-import Metodos.Consultas;
+import Logica.Consultas;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.*;

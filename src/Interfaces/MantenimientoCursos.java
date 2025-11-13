@@ -1,6 +1,6 @@
 package Interfaces;
 
-import Metodos.Consultas;
+import Logica.Consultas;
 import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;

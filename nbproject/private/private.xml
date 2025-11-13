@@ -3,12 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/leand/OneDrive/Escritorio/proyectoAed/ProyectoFinal_AED/src/Interfaces/MenuInicio.java</file>
-            <file>file:/C:/Users/leand/OneDrive/Escritorio/proyectoAed/ProyectoFinal_AED/src/Interfaces/MantenimientoAlumnos.java</file>
-            <file>file:/C:/Users/leand/OneDrive/Escritorio/proyectoAed/ProyectoFinal_AED/src/Datos/DMatricula.java</file>
-            <file>file:/C:/Users/leand/OneDrive/Escritorio/proyectoAed/ProyectoFinal_AED/src/Datos/DRetiro.java</file>
-            <file>file:/C:/Users/leand/OneDrive/Escritorio/proyectoAed/ProyectoFinal_AED/src/Interfaces/Reporte.java</file>
-            <file>file:/C:/Users/leand/OneDrive/Escritorio/proyectoAed/ProyectoFinal_AED/src/Metodos/Excel.java</file>
+            <file>file:/C:/Users/leand/OneDrive/Escritorio/git/ProyectoFinal_AED/src/Interfaces/Reporte.java</file>
+            <file>file:/C:/Users/leand/OneDrive/Escritorio/git/ProyectoFinal_AED/src/Logica/Excel.java</file>
+            <file>file:/C:/Users/leand/OneDrive/Escritorio/git/ProyectoFinal_AED/src/Logica/Consultas.java</file>
         </group>
     </open-files>
 </project-private>

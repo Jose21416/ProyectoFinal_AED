@@ -4,7 +4,7 @@
  */
 package Interfaces;
 
-import Metodos.Excel;
+import Logica.Excel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,6 +16,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -36,7 +37,7 @@ public final class Reporte extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Reporte.class.getName());
 
-    Metodos.Consultas consulta = new Metodos.Consultas();
+    Logica.Consultas consulta = new Logica.Consultas();
     DefaultTableModel modelo;
     
     
@@ -110,7 +111,7 @@ public final class Reporte extends javax.swing.JFrame {
                 fila[3]=rs.getString("dni");
                 fila[4] = rs.getInt("edad");
                 fila[5] = rs.getInt("celular");
-                fila[6] = rs.getInt("estado") == 2 ? "Retirados" : "Error";
+                fila[6] = rs.getInt("estado") == 2 ? "Retirado" : "Error";
                 modelo.addRow(fila);
             }
         } catch (Exception e) {
@@ -207,7 +208,7 @@ public final class Reporte extends javax.swing.JFrame {
         plot.setOutlineVisible(false);
 
         ChartPanel panel = new ChartPanel(chart);
-        panel.setPreferredSize(new Dimension(600, 400));
+        panel.setPreferredSize(new Dimension(600, 290));
 
         jMatriculaPendiente.removeAll();
         jMatriculaPendiente.setLayout(new BorderLayout());
@@ -292,7 +293,7 @@ public final class Reporte extends javax.swing.JFrame {
         plot.setOutlineVisible(false);
 
         ChartPanel panel = new ChartPanel(chart);
-        panel.setPreferredSize(new Dimension(600, 400));
+        panel.setPreferredSize(new Dimension(600, 290));
 
         jCantidadDeAlumnosPorCurso.removeAll();
         jCantidadDeAlumnosPorCurso.setLayout(new BorderLayout());
@@ -330,6 +331,7 @@ public final class Reporte extends javax.swing.JFrame {
         btnAlumnosPorCurso = new javax.swing.JButton();
         jCantidadDeAlumnosPorCurso = new javax.swing.JPanel();
         jMatriculaPendiente = new javax.swing.JPanel();
+        jButton1 = new javax.swing.JButton();
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 102));
 
@@ -370,21 +372,21 @@ public final class Reporte extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1165, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1214, Short.MAX_VALUE)
                 .addContainerGap())
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(498, 498, 498)
-                .addComponent(btnMatriculaPendiente, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnMatriculaPendiente, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(517, 517, 517))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(17, 17, 17)
                 .addComponent(btnMatriculaPendiente)
-                .addGap(17, 17, 17))
+                .addContainerGap())
         );
 
         jpanel.addTab("Alumnos con matrícula pendiente", jPanel1);
@@ -433,12 +435,12 @@ public final class Reporte extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 1165, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 1214, Short.MAX_VALUE)
                 .addContainerGap())
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(491, 491, 491)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnMatriculaVigente, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(518, 518, 518))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -496,12 +498,12 @@ public final class Reporte extends javax.swing.JFrame {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 1165, Short.MAX_VALUE)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 1214, Short.MAX_VALUE)
                 .addContainerGap())
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(485, 485, 485)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnRetirados, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(518, 518, 518))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -546,12 +548,12 @@ public final class Reporte extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1165, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1214, Short.MAX_VALUE)
                 .addContainerGap())
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(491, 491, 491)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnAlumnosPorCurso, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(516, 516, 516))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -569,54 +571,65 @@ public final class Reporte extends javax.swing.JFrame {
         jCantidadDeAlumnosPorCurso.setLayout(jCantidadDeAlumnosPorCursoLayout);
         jCantidadDeAlumnosPorCursoLayout.setHorizontalGroup(
             jCantidadDeAlumnosPorCursoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 582, Short.MAX_VALUE)
+            .addGap(0, 599, Short.MAX_VALUE)
         );
         jCantidadDeAlumnosPorCursoLayout.setVerticalGroup(
             jCantidadDeAlumnosPorCursoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 305, Short.MAX_VALUE)
+            .addGap(0, 292, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout jMatriculaPendienteLayout = new javax.swing.GroupLayout(jMatriculaPendiente);
         jMatriculaPendiente.setLayout(jMatriculaPendienteLayout);
         jMatriculaPendienteLayout.setHorizontalGroup(
             jMatriculaPendienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 574, Short.MAX_VALUE)
+            .addGap(0, 609, Short.MAX_VALUE)
         );
         jMatriculaPendienteLayout.setVerticalGroup(
             jMatriculaPendienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
 
+        jButton1.setText("Exportar todo");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
+                        .addGap(12, 12, 12)
                         .addComponent(jMatriculaPendiente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jCantidadDeAlumnosPorCurso, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jpanel, javax.swing.GroupLayout.PREFERRED_SIZE, 1177, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jCantidadDeAlumnosPorCurso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jpanel))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(523, 523, 523))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jpanel, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jMatriculaPendiente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jCantidadDeAlumnosPorCurso, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jCantidadDeAlumnosPorCurso, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jMatriculaPendiente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(15, 15, 15))
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void tblAlumnosPorCursoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblAlumnosPorCursoMouseClicked
@@ -630,10 +643,6 @@ public final class Reporte extends javax.swing.JFrame {
     private void tblMaticulaPendienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblMaticulaPendienteMouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_tblMaticulaPendienteMouseClicked
-
-    private void tblRetiradosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblRetiradosMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tblRetiradosMouseClicked
 
     private void btnMatriculaVigenteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMatriculaVigenteActionPerformed
         Excel obj;
@@ -679,6 +688,29 @@ public final class Reporte extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnMatriculaPendienteActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+    java.util.LinkedHashMap<String, JTable> tablasParaExportar = new java.util.LinkedHashMap<>();
+    
+    // Añade tus tablas con el nombre que deseas para cada hoja:
+    tablasParaExportar.put("Matrículas Pendientes", tblMaticulaPendiente);
+    tablasParaExportar.put("Matriculas Vigentes", tblMaticulaVigente);
+    tablasParaExportar.put("Retirados", tblRetirados);
+    tablasParaExportar.put("Alumnos por Curso", tblAlumnosPorCurso);
+
+    Excel obj = new Excel();
+
+    try {
+        obj.ExcelTotal(tablasParaExportar);
+    } catch (IOException ex) {
+        System.out.println("Error al exportar a Excel: " + ex);
+    }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void tblRetiradosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblRetiradosMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblRetiradosMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -709,6 +741,7 @@ public final class Reporte extends javax.swing.JFrame {
     private javax.swing.JButton btnMatriculaPendiente;
     private javax.swing.JButton btnMatriculaVigente;
     private javax.swing.JButton btnRetirados;
+    private javax.swing.JButton jButton1;
     private javax.swing.JPanel jCantidadDeAlumnosPorCurso;
     private javax.swing.JPanel jMatriculaPendiente;
     private javax.swing.JPanel jPanel1;
