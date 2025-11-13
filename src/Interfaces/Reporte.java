@@ -41,11 +41,11 @@ public class Reporte extends javax.swing.JFrame {
     
     public Reporte() {
         initComponents();
-        mostrarGraficoAlumnos2();
         mostrarGraficoAlumnos1();
         listarMatriculaVigente();
         listarMatriculaPendiente();
         listarAlumnosPorCurso();
+        listarRetirados(); 
         mostrarGraficoAlumnosPorCurso();
     }
 
@@ -63,6 +63,7 @@ public class Reporte extends javax.swing.JFrame {
                 fila[3]=rs.getString("dni");
                 fila[4] = rs.getInt("edad");
                 fila[5] = rs.getInt("celular");
+                fila[6] = rs.getInt("estado") == 0 ? "Registrado" : "Error";
                 modelo.addRow(fila);
             }
         } catch (Exception e) {
@@ -86,7 +87,7 @@ public class Reporte extends javax.swing.JFrame {
                 fila[3]=rs.getString("dni");
                 fila[4] = rs.getInt("edad");
                 fila[5] = rs.getInt("celular");
-                fila[6] = rs.getInt("estado") == 1 ? "Activo" : "Inactivo";
+                fila[6] = rs.getInt("estado") == 1 ? "Matriculado" : "Error";
                 modelo.addRow(fila);
             }
         } catch (Exception e) {
@@ -94,6 +95,29 @@ public class Reporte extends javax.swing.JFrame {
         }
     }
 
+    void listarRetirados() {
+        modelo = (DefaultTableModel) tblRetirados.getModel();
+        modelo.setRowCount(0);
+        
+        try {
+            ResultSet rs = consulta.listarRetirados();
+            while (rs.next()) {
+                Object[] fila = new Object[7];
+                fila[0] = rs.getInt("idAlumno");
+                fila[1] = rs.getString("nombre");
+                fila[2] = rs.getString("apellidos");
+                fila[3]=rs.getString("dni");
+                fila[4] = rs.getInt("edad");
+                fila[5] = rs.getInt("celular");
+                fila[6] = rs.getInt("estado") == 2 ? "Retirados" : "Error";
+                modelo.addRow(fila);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al listar alumnos: " + e.getMessage());
+        }
+    }
+    
+    
     void listarAlumnosPorCurso() {
         modelo = (DefaultTableModel) tblAlumnosPorCurso.getModel();
         modelo.setRowCount(0);
@@ -122,12 +146,12 @@ public class Reporte extends javax.swing.JFrame {
     try (Connection con = DriverManager.getConnection(url, usuario, clave)) {
         
         String sql = """
-            SELECT 
-                COUNT(CASE WHEN m.idMatricula IS NOT NULL AND r.idMatricula IS NULL THEN 1 END) AS matriculados,
-                COUNT(CASE WHEN m.idMatricula IS NULL THEN 1 END) AS no_matriculados
-            FROM Alumno a
-            LEFT JOIN Matricula m ON a.idAlumno = m.idAlumno
-            LEFT JOIN Retiro r ON m.idMatricula = r.idMatricula
+            SELECT COUNT(CASE WHEN a.estado=1 THEN 1 END) AS matriculados,
+                            COUNT(CASE WHEN a.estado=0 THEN 1 END) AS registrados,
+                            COUNT(CASE WHEN a.estado=2 THEN 1 END) AS retirados
+                        FROM Alumno a
+                        LEFT JOIN Matricula m ON a.idAlumno = m.idAlumno
+                        LEFT JOIN Retiro r ON m.idMatricula = r.idMatricula
             """;
 
         Statement st = con.createStatement();
@@ -135,14 +159,16 @@ public class Reporte extends javax.swing.JFrame {
 
         while (rs.next()) {
             int matriculados = rs.getInt("matriculados");
-            int noMatriculados = rs.getInt("no_matriculados");
+            int registrados = rs.getInt("registrados");
+            int retirados = rs.getInt("retirados");
 
+            dataset.addValue(registrados, "Alumnos", "Registrados");
             dataset.addValue(matriculados, "Alumnos", "Matriculados");
-            dataset.addValue(noMatriculados, "Alumnos", "No Matriculados");
+            dataset.addValue(retirados, "Alumnos", "Retirados");
         }
 
         JFreeChart chart = ChartFactory.createBarChart(
-            "Estado de Matrícula de Alumnos",
+            "Estado de Alumnos",
             "Estado",                    // Eje X
             "Cantidad de Alumnos",       // Eje Y
             dataset,
@@ -157,7 +183,8 @@ public class Reporte extends javax.swing.JFrame {
         BarRenderer renderer = new BarRenderer() {
             private final Color[] colores = {
                 new Color(79, 129, 189),  // Azul
-                new Color(192, 80, 77)     // Rojo
+                new Color(192, 80, 77),     // Rojo
+                new Color(155, 187, 89)   // Verde
             };
 
             @Override
@@ -192,88 +219,7 @@ public class Reporte extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Error al cargar gráfico: " + e.getMessage());
     }
 }
-    private void mostrarGraficoAlumnos2() {
-    String url = "jdbc:mysql://localhost:3306/EduTek";  // Cambia a tu base de datos
-    String usuario = "root";
-    String clave = "root";
-
-    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
-    try (Connection con = DriverManager.getConnection(url, usuario, clave)) {
-        
-        String sql = """
-            SELECT 
-                COUNT(CASE WHEN m.idMatricula IS NOT NULL AND r.idMatricula IS NULL THEN 1 END) AS matriculados,
-                COUNT(CASE WHEN m.idMatricula IS NULL THEN 1 END) AS no_matriculados
-            FROM Alumno a
-            LEFT JOIN Matricula m ON a.idAlumno = m.idAlumno
-            LEFT JOIN Retiro r ON m.idMatricula = r.idMatricula
-            """;
-
-        Statement st = con.createStatement();
-        ResultSet rs = st.executeQuery(sql);
-
-        while (rs.next()) {
-            int matriculados = rs.getInt("matriculados");
-            int noMatriculados = rs.getInt("no_matriculados");
-
-            // Agregar al dataset: (valor, serie, categoría)
-            dataset.addValue(matriculados, "Alumnos", "Matriculados");
-            dataset.addValue(noMatriculados, "Alumnos", "No Matriculados");
-        }
-
-        JFreeChart chart = ChartFactory.createBarChart(
-            "Estado de Matrícula de Alumnos",
-            "Estado",                    // Eje X
-            "Cantidad de Alumnos",       // Eje Y
-            dataset,
-            PlotOrientation.VERTICAL,
-            true,                        // Leyenda
-            true,
-            false
-        );
-
-        CategoryPlot plot = chart.getCategoryPlot();
-        
-        BarRenderer renderer = new BarRenderer() {
-            private final Color[] colores = {
-                new Color(79, 129, 189),  // Azul
-                new Color(192, 80, 77)     // Rojo
-            };
-
-            @Override
-            public Paint getItemPaint(int row, int column) {
-                return colores[column % colores.length];
-            }
-        };
-
-        renderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
-        renderer.setDefaultItemLabelsVisible(true);
-        renderer.setDefaultItemLabelFont(new Font("Tahoma", Font.BOLD, 14));
-        renderer.setDefaultPositiveItemLabelPosition(
-            new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.CENTER)
-        );
-
-        plot.setRenderer(renderer);
-        plot.setBackgroundPaint(Color.WHITE);
-        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
-        plot.setOutlineVisible(false);
-
-        ChartPanel panel = new ChartPanel(chart);
-        panel.setPreferredSize(new Dimension(600, 400));
-
-        jMatriculaPendiente1.removeAll();
-        jMatriculaPendiente1.setLayout(new BorderLayout());
-        jMatriculaPendiente1.add(panel, BorderLayout.CENTER);
-        jMatriculaPendiente1.validate();
-        jMatriculaPendiente1.repaint();
-        
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al cargar gráfico: " + e.getMessage());
-    }
-}
-    
+     
    private void mostrarGraficoAlumnosPorCurso() {
     String url = "jdbc:mysql://localhost:3306/EduTek";  // Cambia a tu base de datos
     String usuario = "root";
@@ -368,15 +314,17 @@ public class Reporte extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblMaticulaPendiente = new javax.swing.JTable();
-        jMatriculaPendiente = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tblMaticulaVigente = new javax.swing.JTable();
-        jMatriculaPendiente1 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        tblRetirados = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblAlumnosPorCurso = new javax.swing.JTable();
         jCantidadDeAlumnosPorCurso = new javax.swing.JPanel();
+        jMatriculaPendiente = new javax.swing.JPanel();
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 102));
 
@@ -386,11 +334,11 @@ public class Reporte extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Id", "Nombres", "Apellidos", "DNI", "Edad", "Celular"
+                "Id", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                true, true, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -403,34 +351,14 @@ public class Reporte extends javax.swing.JFrame {
             }
         });
         jScrollPane2.setViewportView(tblMaticulaPendiente);
-        if (tblMaticulaPendiente.getColumnModel().getColumnCount() > 0) {
-            tblMaticulaPendiente.getColumnModel().getColumn(3).setResizable(false);
-            tblMaticulaPendiente.getColumnModel().getColumn(5).setResizable(false);
-        }
-
-        javax.swing.GroupLayout jMatriculaPendienteLayout = new javax.swing.GroupLayout(jMatriculaPendiente);
-        jMatriculaPendiente.setLayout(jMatriculaPendienteLayout);
-        jMatriculaPendienteLayout.setHorizontalGroup(
-            jMatriculaPendienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        jMatriculaPendienteLayout.setVerticalGroup(
-            jMatriculaPendienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 268, Short.MAX_VALUE)
-        );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 845, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(jMatriculaPendiente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1165, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -438,8 +366,7 @@ public class Reporte extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(34, 34, 34)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
-                .addComponent(jMatriculaPendiente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         jpanel.addTab("Alumnos con matrícula pendiente", jPanel1);
@@ -475,26 +402,13 @@ public class Reporte extends javax.swing.JFrame {
             tblMaticulaVigente.getColumnModel().getColumn(6).setResizable(false);
         }
 
-        javax.swing.GroupLayout jMatriculaPendiente1Layout = new javax.swing.GroupLayout(jMatriculaPendiente1);
-        jMatriculaPendiente1.setLayout(jMatriculaPendiente1Layout);
-        jMatriculaPendiente1Layout.setHorizontalGroup(
-            jMatriculaPendiente1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        jMatriculaPendiente1Layout.setVerticalGroup(
-            jMatriculaPendiente1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 268, Short.MAX_VALUE)
-        );
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 845, Short.MAX_VALUE)
-                    .addComponent(jMatriculaPendiente1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 1165, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -502,12 +416,60 @@ public class Reporte extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(34, 34, 34)
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jMatriculaPendiente1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         jpanel.addTab(" Alumnos con matrícula vigente", jPanel2);
+
+        jPanel4.setBackground(new java.awt.Color(0, 0, 102));
+
+        tblRetirados.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        tblRetirados.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Id", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                true, true, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblRetirados.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblRetiradosMouseClicked(evt);
+            }
+        });
+        jScrollPane5.setViewportView(tblRetirados);
+        if (tblRetirados.getColumnModel().getColumnCount() > 0) {
+            tblRetirados.getColumnModel().getColumn(3).setResizable(false);
+            tblRetirados.getColumnModel().getColumn(5).setResizable(false);
+            tblRetirados.getColumnModel().getColumn(6).setResizable(false);
+        }
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 1165, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(34, 34, 34)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(45, Short.MAX_VALUE))
+        );
+
+        jpanel.addTab(" Alumnos Retirados", jPanel4);
 
         jPanel3.setBackground(new java.awt.Color(0, 0, 102));
 
@@ -527,6 +489,25 @@ public class Reporte extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tblAlumnosPorCurso);
 
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1165, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(35, 35, 35)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(65, Short.MAX_VALUE))
+        );
+
+        jpanel.addTab(" Alumnos matriculados por curso", jPanel3);
+
         javax.swing.GroupLayout jCantidadDeAlumnosPorCursoLayout = new javax.swing.GroupLayout(jCantidadDeAlumnosPorCurso);
         jCantidadDeAlumnosPorCurso.setLayout(jCantidadDeAlumnosPorCursoLayout);
         jCantidadDeAlumnosPorCursoLayout.setHorizontalGroup(
@@ -535,30 +516,19 @@ public class Reporte extends javax.swing.JFrame {
         );
         jCantidadDeAlumnosPorCursoLayout.setVerticalGroup(
             jCantidadDeAlumnosPorCursoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 288, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 845, Short.MAX_VALUE)
-                    .addComponent(jCantidadDeAlumnosPorCurso, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+        javax.swing.GroupLayout jMatriculaPendienteLayout = new javax.swing.GroupLayout(jMatriculaPendiente);
+        jMatriculaPendiente.setLayout(jMatriculaPendienteLayout);
+        jMatriculaPendienteLayout.setHorizontalGroup(
+            jMatriculaPendienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 574, Short.MAX_VALUE)
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(35, 35, 35)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
-                .addComponent(jCantidadDeAlumnosPorCurso, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        jMatriculaPendienteLayout.setVerticalGroup(
+            jMatriculaPendienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 305, Short.MAX_VALUE)
         );
-
-        jpanel.addTab(" Alumnos matriculados por curso", jPanel3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -566,23 +536,31 @@ public class Reporte extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jpanel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jMatriculaPendiente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jCantidadDeAlumnosPorCurso, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jpanel, javax.swing.GroupLayout.PREFERRED_SIZE, 1177, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 3, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jpanel)
+                .addComponent(jpanel, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jMatriculaPendiente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jCantidadDeAlumnosPorCurso, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void tblMaticulaPendienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblMaticulaPendienteMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tblMaticulaPendienteMouseClicked
 
     private void tblAlumnosPorCursoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblAlumnosPorCursoMouseClicked
         // TODO add your handling code here:
@@ -591,6 +569,14 @@ public class Reporte extends javax.swing.JFrame {
     private void tblMaticulaVigenteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblMaticulaVigenteMouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_tblMaticulaVigenteMouseClicked
+
+    private void tblMaticulaPendienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblMaticulaPendienteMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblMaticulaPendienteMouseClicked
+
+    private void tblRetiradosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblRetiradosMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblRetiradosMouseClicked
 
     /**
      * @param args the command line arguments
@@ -620,16 +606,18 @@ public class Reporte extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jCantidadDeAlumnosPorCurso;
     private javax.swing.JPanel jMatriculaPendiente;
-    private javax.swing.JPanel jMatriculaPendiente1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTabbedPane jpanel;
     private javax.swing.JTable tblAlumnosPorCurso;
     private javax.swing.JTable tblMaticulaPendiente;
     private javax.swing.JTable tblMaticulaVigente;
+    private javax.swing.JTable tblRetirados;
     // End of variables declaration//GEN-END:variables
 }

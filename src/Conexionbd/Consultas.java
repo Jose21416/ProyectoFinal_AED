@@ -450,9 +450,9 @@ public class Consultas {
 
     public ResultSet listarMatriculaPendiente() {
         String sql = """
-                     select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular
+                     select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,a.estado
                      from alumno a left join matricula m on a.idAlumno=m.idAlumno 
-                     where m.idMatricula is null or a.estado=0""";
+                     where a.estado=0""";
         try {
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
             return ps.executeQuery();
@@ -476,6 +476,21 @@ public class Consultas {
         }
     }
 
+    public ResultSet listarRetirados() {
+        String sql = """
+                     select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,
+                     a.estado from alumno a left join matricula m on a.idAlumno=m.idAlumno 
+                     where a.estado=2""";
+        try {
+            PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
+            return ps.executeQuery();
+        } catch (SQLException e) {
+            System.out.println("Error al listar consulta: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    
     public ResultSet listarAlumnosPorCurso() {
         String sql = """
                      SELECT c.idCurso, c.asignatura, COUNT(A.idAlumno) as Cantidad_de_Alumnos

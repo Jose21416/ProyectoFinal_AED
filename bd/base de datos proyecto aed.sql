@@ -37,22 +37,33 @@ create table Retiro(
     foreign key (idMatricula) references Matricula(idMatricula)
 ) auto_increment = 200001;
 
+-- =========================================================
+-- INSERTS MODIFICADOS CON CONTEXTO PERUANO Y ESTADOS LOGICOS
+-- =========================================================
+
 INSERT INTO Alumno (nombre, apellidos, dni, edad, celular, estado) VALUES
-('Juan Carlos', 'Pérez Gómez', '12345678A', 20, 987654321, 1),
-('María Elena', 'López Ruiz', '87654321B', 22, 912345678, 1),
-('Pedro Luis', 'Martínez Soto', '45678912C', 19, 945678123, 1),
-('Ana Sofía', 'García Fernández', '78912345D', 21, 923456789, 1),
-('Luis Miguel', 'Torres Vega', '32165498E', 23, 934567890, 0),
-('Carla Daniela', 'Ramírez Ortiz', '11223344F', 20, 955123456, 1),
-('Diego Armando', 'Sánchez Vega', '22334455G', 21, 966234567, 1),
-('Valeria Paz', 'Castro Mendoza', '33445566H', 19, 977345678, 1),
-('Javier Andrés', 'Herrera Luna', '44556677I', 22, 988456789, 1),
-('Sofía Camila', 'Rojas Paredes', '55667788J', 18, 999567890, 1),
-('Mateo Gabriel', 'Flores Díaz', '66778899K', 23, 911678901, 0),
-('Lucía Fernanda', 'Vargas Cruz', '77889900L', 20, 922789012, 1),
-('Renato José', 'Molina Reyes', '88990011M', 21, 933890123, 1),
-('Isabella Marie', 'Navarro Silva', '99001122N', 19, 944901234, 1),
-('Tomás Eduardo', 'Gómez Salazar', '00112233O', 24, 955012345, 1);
+-- ESTADO 1: MATRICULADOS ACTIVOS
+('Juan Carlos', 'Pérez Gómez', '71234567', 20, '987654321', 1),
+('María Elena', 'López Ruiz', '72345678', 22, '912345678', 1),
+('Pedro Luis', 'Martínez Soto', '73456789', 19, '945678123', 1),
+('Ana Sofía', 'García Fernández', '74567890', 21, '923456789', 1),
+('Carla Daniela', 'Ramírez Ortiz', '75678901', 20, '955123456', 1),
+('Diego Armando', 'Sánchez Vega', '76789012', 21, '966234567', 1),
+('Valeria Paz', 'Castro Mendoza', '77890123', 19, '977345678', 1),
+('Javier Andrés', 'Herrera Luna', '78901234', 22, '988456789', 1),
+('Sofía Camila', 'Rojas Paredes', '79012345', 18, '999567890', 1),
+('Lucía Fernanda', 'Vargas Cruz', '70123456', 20, '922789012', 1),
+('Renato José', 'Molina Reyes', '71123456', 21, '933890123', 1),
+('Isabella Marie', 'Navarro Silva', '72123456', 19, '944901234', 1),
+
+-- ESTADO 2: RETIRADOS (Tenían matrícula, pero luego se retiraron)
+('Luis Miguel', 'Torres Vega', '73123456', 23, '934567890', 2),
+('Mateo Gabriel', 'Flores Díaz', '74123456', 23, '911678901', 2),
+('Tomás Eduardo', 'Gómez Salazar', '75123456', 24, '955012345', 2),
+
+-- ESTADO 0: REGISTRADOS (Sin matrícula aún)
+('Alejandro Manuel', 'Reyes Huamán', '76123456', 25, '980123456', 0),
+('Gabriela Belén', 'Chávez Solís', '77123456', 20, '990123456', 0);
 
 
 INSERT INTO Curso (asignatura, ciclo, creditos, horas) VALUES
@@ -72,39 +83,40 @@ INSERT INTO Curso (asignatura, ciclo, creditos, horas) VALUES
 ('Diseño de Interfaces', 3, 4, 60),
 ('Ética Profesional', 4, 3, 45);
 
+-- Se insertan las matrículas solo para los alumnos con estado 1 y 2
 INSERT INTO Matricula (fecha, hora, idAlumno, idCurso) VALUES
-('2025-03-15', '09:30:00', 1, 1),
-('2025-03-15', '10:15:00', 1, 2),
-('2025-03-16', '08:45:00', 2, 3),
-('2025-03-16', '11:00:00', 3, 1),
-('2025-03-17', '14:20:00', 4, 2),
-('2025-03-17', '15:10:00', 4, 4),
-('2025-03-18', '09:00:00', 2, 5),
-('2025-03-19', '09:15:00', 6, 3),
-('2025-03-19', '10:30:00', 6, 6),
-('2025-03-20', '08:00:00', 7, 1),
-('2025-03-20', '11:45:00', 7, 4),
-('2025-03-21', '13:20:00', 8, 2),
-('2025-03-21', '14:10:00', 8, 5),
-('2025-03-22', '09:30:00', 9, 7),
-('2025-03-22', '15:00:00', 9, 8),
-('2025-03-23', '10:00:00', 10, 9),
-('2025-03-23', '16:20:00', 10, 10),
-('2025-03-24', '08:45:00', 11, 11),
-('2025-03-24', '12:30:00', 11, 12),
-('2025-03-25', '14:00:00', 12, 13),
-('2025-03-25', '15:30:00', 13, 14),
-('2025-03-26', '11:15:00', 14, 15);
+('2025-03-15', '09:30:00', 1, 1),  -- Activo
+('2025-03-15', '10:15:00', 2, 2),  -- Activo
+('2025-03-16', '08:45:00', 3, 3),  -- Activo
+('2025-03-16', '11:00:00', 4, 1),  -- Activo
+('2025-03-17', '14:20:00', 5, 2),  -- Retirado (ID 5)
+('2025-03-17', '15:10:00', 6, 4),  -- Activo
+('2025-03-18', '09:00:00', 7, 5),  -- Activo
+('2025-03-19', '09:15:00', 8, 3),  -- Activo
+('2025-03-19', '10:30:00', 9, 6),  -- Activo
+('2025-03-20', '08:00:00', 10, 1), -- Activo
+('2025-03-20', '11:45:00', 11, 4), -- Activo
+('2025-03-21', '13:20:00', 12, 2), -- Activo
+('2025-03-21', '14:10:00', 13, 5), -- Activo
+('2025-03-22', '09:30:00', 14, 7), -- Activo
+('2025-03-22', '15:00:00', 15, 8); -- Retirado (ID 15)
 
+
+-- Se insertan los retiros solo para los alumnos con estado 2 (IDs 5, 14, 15)
 INSERT INTO Retiro (fecha, hora, idMatricula) VALUES
-('2025-04-10', '16:30:00', 100001),  -- Juan retira Matemáticas I
-('2025-04-12', '10:20:00', 100005),  -- Ana retira Programación Básica
-('2025-04-15', '13:45:00', 100003),  -- María retira Bases de Datos
-('2025-04-18', '10:45:00', 100008),  -- Carla retira Bases de Datos
-('2025-04-19', '14:20:00', 100010),  -- Diego retira Programación Básica
-('2025-04-20', '09:10:00', 100012),  -- Valeria retira Estructuras de Datos
-('2025-04-21', '16:00:00', 100015),  -- Javier retira Desarrollo Web
-('2025-04-22', '11:30:00', 100018),  -- Sofía retira Cálculo II
-('2025-04-23', '13:15:00', 100020),  -- Mateo retira Sistemas Operativos
-('2025-04-24', '15:45:00', 100022);  -- Lucía retira Inteligencia Artificial
+('2025-04-10', '16:30:00', 100005),  -- Luis Miguel (ID Alumno 5)
+('2025-04-20', '09:10:00', 100014),  -- Mateo Gabriel (ID Alumno 14)
+('2025-04-24', '15:45:00', 100015);  -- Tomás Eduardo (ID Alumno 15)
 
+
+
+select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,a.estado
+from alumno a left join matricula m on a.idAlumno=m.idAlumno 
+where a.estado=0;
+                     
+SELECT COUNT(CASE WHEN a.estado=1 THEN 1 END) AS matriculados,
+		COUNT(CASE WHEN a.estado=0 THEN 1 END) AS registrados,
+		COUNT(CASE WHEN a.estado=2 THEN 1 END) AS retirados
+		FROM Alumno a
+		LEFT JOIN Matricula m ON a.idAlumno = m.idAlumno
+		LEFT JOIN Retiro r ON m.idMatricula = r.idMatricula;
