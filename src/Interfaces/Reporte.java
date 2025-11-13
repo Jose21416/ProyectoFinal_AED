@@ -4,11 +4,13 @@
  */
 package Interfaces;
 
+import Metodos.Excel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Paint;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -26,7 +28,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.category.DefaultCategoryDataset;
-
 /**
  *
  * @author leand
@@ -312,21 +313,32 @@ public class Reporte extends javax.swing.JFrame {
 
         jpanel = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
+        btnMatriculaPendiente = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblMaticulaPendiente = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tblMaticulaVigente = new javax.swing.JTable();
+        btnMatriculaVigente = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
         tblRetirados = new javax.swing.JTable();
+        btnRetirados = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblAlumnosPorCurso = new javax.swing.JTable();
+        btnAlumnosPorCurso = new javax.swing.JButton();
         jCantidadDeAlumnosPorCurso = new javax.swing.JPanel();
         jMatriculaPendiente = new javax.swing.JPanel();
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 102));
+
+        btnMatriculaPendiente.setText("Exportar");
+        btnMatriculaPendiente.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMatriculaPendienteActionPerformed(evt);
+            }
+        });
 
         tblMaticulaPendiente.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         tblMaticulaPendiente.setModel(new javax.swing.table.DefaultTableModel(
@@ -356,17 +368,23 @@ public class Reporte extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1165, Short.MAX_VALUE)
                 .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(498, 498, 498)
+                .addComponent(btnMatriculaPendiente, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(34, 34, 34)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(45, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnMatriculaPendiente)
+                .addGap(17, 17, 17))
         );
 
         jpanel.addTab("Alumnos con matrícula pendiente", jPanel1);
@@ -402,6 +420,13 @@ public class Reporte extends javax.swing.JFrame {
             tblMaticulaVigente.getColumnModel().getColumn(6).setResizable(false);
         }
 
+        btnMatriculaVigente.setText("Exportar");
+        btnMatriculaVigente.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMatriculaVigenteActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -410,13 +435,19 @@ public class Reporte extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 1165, Short.MAX_VALUE)
                 .addContainerGap())
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(491, 491, 491)
+                .addComponent(btnMatriculaVigente, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(34, 34, 34)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(45, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnMatriculaVigente)
+                .addContainerGap())
         );
 
         jpanel.addTab(" Alumnos con matrícula vigente", jPanel2);
@@ -452,6 +483,13 @@ public class Reporte extends javax.swing.JFrame {
             tblRetirados.getColumnModel().getColumn(6).setResizable(false);
         }
 
+        btnRetirados.setText("Exportar");
+        btnRetirados.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRetiradosActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -460,13 +498,19 @@ public class Reporte extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 1165, Short.MAX_VALUE)
                 .addContainerGap())
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(485, 485, 485)
+                .addComponent(btnRetirados, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(34, 34, 34)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(45, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnRetirados)
+                .addContainerGap())
         );
 
         jpanel.addTab(" Alumnos Retirados", jPanel4);
@@ -489,6 +533,13 @@ public class Reporte extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tblAlumnosPorCurso);
 
+        btnAlumnosPorCurso.setText("Exportar");
+        btnAlumnosPorCurso.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAlumnosPorCursoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -497,13 +548,19 @@ public class Reporte extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1165, Short.MAX_VALUE)
                 .addContainerGap())
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(491, 491, 491)
+                .addComponent(btnAlumnosPorCurso, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(35, 35, 35)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(65, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnAlumnosPorCurso)
+                .addContainerGap())
         );
 
         jpanel.addTab(" Alumnos matriculados por curso", jPanel3);
@@ -512,11 +569,11 @@ public class Reporte extends javax.swing.JFrame {
         jCantidadDeAlumnosPorCurso.setLayout(jCantidadDeAlumnosPorCursoLayout);
         jCantidadDeAlumnosPorCursoLayout.setHorizontalGroup(
             jCantidadDeAlumnosPorCursoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 582, Short.MAX_VALUE)
         );
         jCantidadDeAlumnosPorCursoLayout.setVerticalGroup(
             jCantidadDeAlumnosPorCursoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 305, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout jMatriculaPendienteLayout = new javax.swing.GroupLayout(jMatriculaPendiente);
@@ -527,7 +584,7 @@ public class Reporte extends javax.swing.JFrame {
         );
         jMatriculaPendienteLayout.setVerticalGroup(
             jMatriculaPendienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 305, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -544,7 +601,7 @@ public class Reporte extends javax.swing.JFrame {
                         .addComponent(jCantidadDeAlumnosPorCurso, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jpanel, javax.swing.GroupLayout.PREFERRED_SIZE, 1177, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 3, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -578,6 +635,50 @@ public class Reporte extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_tblRetiradosMouseClicked
 
+    private void btnMatriculaVigenteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMatriculaVigenteActionPerformed
+        Excel obj;
+
+        try {
+            obj = new Excel();
+            obj.Excel(tblMaticulaVigente);
+        } catch (IOException ex) {
+            System.out.println("Error: " + ex);
+        }
+    }//GEN-LAST:event_btnMatriculaVigenteActionPerformed
+
+    private void btnRetiradosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRetiradosActionPerformed
+        Excel obj;
+
+        try {
+            obj = new Excel();
+            obj.Excel(tblRetirados);
+        } catch (IOException ex) {
+            System.out.println("Error: " + ex);
+        }
+    }//GEN-LAST:event_btnRetiradosActionPerformed
+
+    private void btnAlumnosPorCursoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAlumnosPorCursoActionPerformed
+        Excel obj;
+
+        try {
+            obj = new Excel();
+            obj.Excel(tblAlumnosPorCurso);
+        } catch (IOException ex) {
+            System.out.println("Error: " + ex);
+        }
+    }//GEN-LAST:event_btnAlumnosPorCursoActionPerformed
+
+    private void btnMatriculaPendienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMatriculaPendienteActionPerformed
+        Excel obj;
+
+        try {
+            obj = new Excel();
+            obj.Excel(tblMaticulaPendiente);
+        } catch (IOException ex) {
+            System.out.println("Error: " + ex);
+        }
+    }//GEN-LAST:event_btnMatriculaPendienteActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -604,6 +705,10 @@ public class Reporte extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAlumnosPorCurso;
+    private javax.swing.JButton btnMatriculaPendiente;
+    private javax.swing.JButton btnMatriculaVigente;
+    private javax.swing.JButton btnRetirados;
     private javax.swing.JPanel jCantidadDeAlumnosPorCurso;
     private javax.swing.JPanel jMatriculaPendiente;
     private javax.swing.JPanel jPanel1;
