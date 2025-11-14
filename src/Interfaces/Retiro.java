@@ -53,7 +53,7 @@ public class Retiro extends javax.swing.JFrame {
             cmbMatricula.addItem("Seleccione una matrícula");
             while (rs.next()) {
                 cmbMatricula.addItem(
-                        rs.getInt("idMatricula") + " - "
+                        rs.getInt("codMatricula") + " - "
                         + rs.getString("alumno_nombre") + " "
                         + rs.getString("alumno_apellidos") + " ("
                         + rs.getString("curso_asignatura") + ")"
@@ -67,11 +67,11 @@ public class Retiro extends javax.swing.JFrame {
     private void mostrarRetiros() {
         try {
             ResultSet rs = consultas.listarRetiros();
-            modelo = new DefaultTableModel(new Object[]{"ID retiro", "ID Matricula", "Alumno", "Curso","Fecha", "Hora"}, 0);
+            modelo = new DefaultTableModel(new Object[]{"Código Retiro", "Código Matricula", "Alumno", "Curso","Fecha", "Hora"}, 0);
             while (rs.next()) {
                 modelo.addRow(new Object[]{
-                    rs.getInt("idRetiro"),
-                    rs.getInt("idMatricula"),
+                    rs.getInt("codRetiro"),
+                    rs.getInt("codMatricula"),
                     rs.getString("alumno_nombre") + " " + rs.getString("alumno_apellidos"),
                     rs.getString("curso_asignatura"),
                     rs.getDate("fecha"),
@@ -157,7 +157,7 @@ public class Retiro extends javax.swing.JFrame {
             modelo = new DefaultTableModel(new Object[]{"ID", "Alumno", "Curso", "Fecha", "Hora"}, 0);
             while (rs.next()) {
                 modelo.addRow(new Object[]{
-                    rs.getInt("idRetiro"),
+                    rs.getInt("codRetiro"),
                     rs.getString("alumno_nombre") + " " + rs.getString("alumno_apellidos"),
                     rs.getString("curso_asignatura"),
                     rs.getDate("fecha"),

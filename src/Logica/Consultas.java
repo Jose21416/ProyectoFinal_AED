@@ -325,7 +325,7 @@ public class Consultas {
     public ResultSet listarMatriculas() {
         String sql = """
         SELECT 
-            m.idMatricula,
+            m.codMatricula,
             a.nombre AS alumno_nombre,
             a.apellidos AS alumno_apellidos,
             c.asignatura AS curso_asignatura,
@@ -335,7 +335,7 @@ public class Consultas {
         JOIN Alumno a ON m.idAlumno = a.idAlumno
         JOIN Curso c ON m.idCurso = c.idCurso
         WHERE a.estado = 1
-        ORDER BY m.idMatricula ASC
+        ORDER BY m.codMatricula ASC
     """;
         try {
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
@@ -397,8 +397,8 @@ public class Consultas {
     public ResultSet listarRetiros() {
         String sql = """
         SELECT 
-            r.idRetiro,
-            r.idMatricula,
+            r.codRetiro,
+            m.codMatricula,
             a.nombre AS alumno_nombre,
             a.apellidos AS alumno_apellidos,
             c.asignatura AS curso_asignatura,
@@ -409,7 +409,7 @@ public class Consultas {
         JOIN Alumno a ON m.idAlumno = a.idAlumno
         JOIN Curso c ON m.idCurso = c.idCurso
         WHERE a.estado = 2
-        ORDER BY r.idRetiro ASC
+        ORDER BY r.codRetiro ASC
     """;
         try {
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
