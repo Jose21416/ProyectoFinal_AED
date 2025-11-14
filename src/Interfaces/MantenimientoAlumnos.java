@@ -13,41 +13,79 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
 
     Consultas consulta = new Consultas();
     DefaultTableModel modelo;
+    private int idAlumnoSeleccionado = -1;
+    private int estadoAlumnoSeleccionado = 0;
+
     public MantenimientoAlumnos() {
         initComponents();
         this.setLocationRelativeTo(null);
         listarAlumnos();
-        txtId.setEditable(false);
+        txtCodigo.setEditable(false);
     }
-     void limpiarCampos() {
-        txtId.setText(""); // ID
+
+    void limpiarCampos() {
+        txtCodigo.setText(""); // ID
         txtNombre.setText(""); // Nombres
         txtApellidos.setText(""); // Apellidos
         txtDni.setText(""); // DNI
         txtEdad.setText(""); // Edad
         txtCelular.setText(""); // Celular
+        idAlumnoSeleccionado = -1;
+        estadoAlumnoSeleccionado = 0;
     }
+
     void listarAlumnos() {
         modelo = (DefaultTableModel) tblAlumnos.getModel();
         modelo.setRowCount(0);
-        
+
         try {
             ResultSet rs = consulta.listarAlumnos();
             while (rs.next()) {
                 Object[] fila = new Object[7];
-                fila[0] = rs.getInt("idAlumno");
+                fila[0] = rs.getString("codAlumno");
                 fila[1] = rs.getString("nombre");
                 fila[2] = rs.getString("apellidos");
-                fila[3]=rs.getString("dni");
+                fila[3] = rs.getString("dni");
                 fila[4] = rs.getInt("edad");
                 fila[5] = rs.getInt("celular");
-                fila[6] = rs.getInt("estado") == 1 ? "Activo" : "Inactivo";
+
+                int estado = rs.getInt("estado");
+                if (estado == 0) {
+                    fila[6] = "Registrado";
+                } else if (estado == 1) {
+                    fila[6] = "Matriculado";
+                } else if (estado == 2) {
+                    fila[6] = "Retirado";
+                } else {
+                    fila[6] = "Desconocido";
+                }
                 modelo.addRow(fila);
             }
+            rs.close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al listar alumnos: " + e.getMessage());
         }
     }
+
+    private void obtenerDatosAlumnoPorCodigo(String codAlumno) {
+        try {
+            ResultSet rs = consulta.listarAlumnos();
+            while (rs.next()) {
+                if (rs.getString("codAlumno").equals(codAlumno)) {
+                    idAlumnoSeleccionado = rs.getInt("idAlumno");
+                    estadoAlumnoSeleccionado = rs.getInt("estado");
+                    rs.close();
+                    return;
+                }
+            }
+            rs.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al obtener datos: " + e.getMessage());
+        }
+        idAlumnoSeleccionado = -1;
+        estadoAlumnoSeleccionado = 0;
+    }
+
     boolean validarCampos() {
         if (txtNombre.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Ingrese el nombre del alumno");
@@ -74,7 +112,7 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
             txtCelular.requestFocus();
             return false;
         }
-        
+
         // Validacion de edad y celular sean números
         try {
             Integer.parseInt(txtEdad.getText().trim());
@@ -83,9 +121,10 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Edad y Celular deben ser números válidos");
             return false;
         }
-        
+
         return true;
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -109,7 +148,7 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
         txtEdad = new javax.swing.JTextField();
         txtCelular = new javax.swing.JTextField();
         txtApellidos = new javax.swing.JTextField();
-        txtId = new javax.swing.JTextField();
+        txtCodigo = new javax.swing.JTextField();
         btnRegistrar = new javax.swing.JButton();
         btnModificar = new javax.swing.JButton();
         btnEliminar = new javax.swing.JButton();
@@ -150,9 +189,9 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
 
         jLabel8.setFont(new java.awt.Font("Segoe UI Black", 1, 24)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel8.setText("ID:");
+        jLabel8.setText("Codigo:");
 
-        txtId.setEnabled(false);
+        txtCodigo.setEnabled(false);
 
         btnRegistrar.setBackground(new java.awt.Color(0, 51, 153));
         btnRegistrar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -200,7 +239,7 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
 
             },
             new String [] {
-                "ID", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
+                "Codigo", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
             }
         ));
         tblAlumnos.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -223,29 +262,25 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
                             .addComponent(jLabel7)
                             .addComponent(jLabel5)
                             .addComponent(jLabel1)
-                            .addComponent(jLabel3)))
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel8)))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addComponent(btnRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(12, 12, 12)
-                        .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(58, 58, 58)
-                        .addComponent(jLabel8)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(23, 23, 23)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtDni, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtCelular, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtApellidos, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtEdad, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtDni, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(txtCelular, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(txtApellidos, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(txtEdad, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
-                        .addComponent(txtId, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
+                    .addComponent(txtNombre, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(txtCodigo, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(27, 27, 27))
             .addGroup(jPanel2Layout.createSequentialGroup()
@@ -261,9 +296,9 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtId))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
@@ -293,7 +328,7 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
                             .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 750, 510));
@@ -315,17 +350,19 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
     private void tblAlumnosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblAlumnosMouseClicked
         int fila = tblAlumnos.getSelectedRow();
         if (fila >= 0) {
-            txtId.setText(tblAlumnos.getValueAt(fila, 0).toString()); // ID
-            txtNombre.setText(tblAlumnos.getValueAt(fila, 1).toString()); // Nombres
-            txtApellidos.setText(tblAlumnos.getValueAt(fila, 2).toString()); // Apellidos
-            txtDni.setText(tblAlumnos.getValueAt(fila, 3).toString()); //DNI
-            txtEdad.setText(tblAlumnos.getValueAt(fila, 4).toString()); // Edad
-            txtCelular.setText(tblAlumnos.getValueAt(fila, 5).toString()); // Celular
+            String codAlumno = tblAlumnos.getValueAt(fila, 0).toString();
+            obtenerDatosAlumnoPorCodigo(codAlumno);
+            txtCodigo.setText(codAlumno);
+            txtNombre.setText(tblAlumnos.getValueAt(fila, 1).toString());
+            txtApellidos.setText(tblAlumnos.getValueAt(fila, 2).toString());
+            txtDni.setText(tblAlumnos.getValueAt(fila, 3).toString());
+            txtEdad.setText(tblAlumnos.getValueAt(fila, 4).toString());
+            txtCelular.setText(tblAlumnos.getValueAt(fila, 5).toString());
         }
     }//GEN-LAST:event_tblAlumnosMouseClicked
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-       limpiarCampos();
+        limpiarCampos();
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarActionPerformed
@@ -335,8 +372,8 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
             String dni = txtDni.getText().trim();
             int edad = Integer.parseInt(txtEdad.getText().trim());
             int celular = Integer.parseInt(txtCelular.getText().trim());
-            int estado = 0; // Por defecto activo
-            
+            int estado = 0;
+
             if (consulta.insertarAlumno(nombre, apellidos, dni, edad, celular, estado)) {
                 JOptionPane.showMessageDialog(null, "Alumno registrado exitosamente");
                 listarAlumnos();
@@ -348,27 +385,26 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRegistrarActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-        if (txtId.getText().trim().isEmpty()) {
+        if (txtCodigo.getText().trim().isEmpty() || idAlumnoSeleccionado == -1) {
             JOptionPane.showMessageDialog(null, "Seleccione un alumno de la tabla para modificar");
             return;
         }
-        
+
         if (validarCampos()) {
-            int id = Integer.parseInt(txtId.getText().trim());
             String nombre = txtNombre.getText().trim();
             String apellidos = txtApellidos.getText().trim();
             String dni = txtDni.getText().trim();
             int edad = Integer.parseInt(txtEdad.getText().trim());
             int celular = Integer.parseInt(txtCelular.getText().trim());
-            int estado = 1;
-            
-            int confirm = JOptionPane.showConfirmDialog(null, 
-                "¿Está seguro de modificar este alumno?", 
-                "Confirmar", 
-                JOptionPane.YES_NO_OPTION);
-            
+            int estado = estadoAlumnoSeleccionado;
+
+            int confirm = JOptionPane.showConfirmDialog(null,
+                    "¿Está seguro de modificar este alumno?",
+                    "Confirmar",
+                    JOptionPane.YES_NO_OPTION);
+
             if (confirm == JOptionPane.YES_OPTION) {
-                if (consulta.actualizarAlumno(id, nombre, apellidos, dni, edad, celular, estado)) {
+                if (consulta.actualizarAlumno(idAlumnoSeleccionado, nombre, apellidos, dni, edad, celular, estado)) {
                     JOptionPane.showMessageDialog(null, "Alumno modificado exitosamente");
                     listarAlumnos();
                     limpiarCampos();
@@ -380,21 +416,20 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
     }//GEN-LAST:event_btnModificarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        if (txtId.getText().trim().isEmpty()) {
+         if (txtCodigo.getText().trim().isEmpty() || idAlumnoSeleccionado == -1) {
             JOptionPane.showMessageDialog(null, "Seleccione un alumno de la tabla para eliminar");
             return;
         }
-        
-        int id = Integer.parseInt(txtId.getText().trim());
+
         String nombre = txtNombre.getText().trim();
-        
-        int confirm = JOptionPane.showConfirmDialog(null, 
-            "¿Está seguro de eliminar al alumno " + nombre + "?", 
-            "Confirmar Eliminación", 
-            JOptionPane.YES_NO_OPTION);
-        
+
+        int confirm = JOptionPane.showConfirmDialog(null,
+                "¿Está seguro de eliminar al alumno " + nombre + "?",
+                "Confirmar Eliminación",
+                JOptionPane.YES_NO_OPTION);
+
         if (confirm == JOptionPane.YES_OPTION) {
-            if (consulta.eliminarAlumno(id)) {
+            if (consulta.eliminarAlumno(idAlumnoSeleccionado)) {
                 JOptionPane.showMessageDialog(null, "Alumno eliminado exitosamente");
                 listarAlumnos();
                 limpiarCampos();
@@ -457,9 +492,9 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
     private javax.swing.JTable tblAlumnos;
     private javax.swing.JTextField txtApellidos;
     private javax.swing.JTextField txtCelular;
+    private javax.swing.JTextField txtCodigo;
     private javax.swing.JTextField txtDni;
     private javax.swing.JTextField txtEdad;
-    private javax.swing.JTextField txtId;
     private javax.swing.JTextField txtNombre;
     // End of variables declaration//GEN-END:variables
 }

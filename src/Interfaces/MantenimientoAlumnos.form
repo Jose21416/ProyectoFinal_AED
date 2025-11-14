@@ -67,6 +67,7 @@
                                   <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                                   <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel8" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
@@ -77,26 +78,19 @@
                               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                               <Component id="btnModificar" min="-2" pref="122" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="58" max="-2" attributes="0"/>
-                              <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
-                          </Group>
                       </Group>
-                      <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="btnEliminar" alignment="0" min="-2" pref="122" max="-2" attributes="0"/>
-                          <Component id="txtNombre" alignment="0" min="-2" pref="116" max="-2" attributes="0"/>
-                          <Component id="txtDni" alignment="0" min="-2" pref="116" max="-2" attributes="0"/>
-                          <Component id="txtCelular" alignment="0" min="-2" pref="116" max="-2" attributes="0"/>
-                          <Component id="txtApellidos" alignment="0" min="-2" pref="116" max="-2" attributes="0"/>
-                          <Component id="txtEdad" alignment="0" min="-2" pref="116" max="-2" attributes="0"/>
+                          <Component id="txtDni" alignment="1" max="32767" attributes="0"/>
+                          <Component id="txtCelular" alignment="1" max="32767" attributes="0"/>
+                          <Component id="txtApellidos" alignment="1" max="32767" attributes="0"/>
+                          <Component id="txtEdad" alignment="1" max="32767" attributes="0"/>
                           <Component id="btnLimpiar" alignment="0" min="-2" pref="122" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
-                              <Component id="txtId" min="-2" pref="50" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="txtNombre" alignment="1" max="32767" attributes="0"/>
+                          <Component id="txtCodigo" alignment="1" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="36" max="32767" attributes="0"/>
+                      <EmptySpace pref="25" max="32767" attributes="0"/>
                       <Component id="jScrollPane1" min="-2" pref="411" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
                   </Group>
@@ -115,9 +109,9 @@
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="jLabel8" max="32767" attributes="0"/>
-                                  <Component id="txtId" max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="txtCodigo" alignment="3" min="-2" pref="33" max="-2" attributes="0"/>
+                                  <Component id="jLabel8" alignment="3" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
@@ -157,7 +151,7 @@
                           </Group>
                           <Component id="jScrollPane1" alignment="0" min="-2" pref="394" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="29" max="32767" attributes="0"/>
+                      <EmptySpace pref="24" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -237,7 +231,7 @@
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="ID:"/>
+                <Property name="text" type="java.lang.String" value="Codigo:"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="txtDni">
@@ -250,7 +244,7 @@
             </Component>
             <Component class="javax.swing.JTextField" name="txtApellidos">
             </Component>
-            <Component class="javax.swing.JTextField" name="txtId">
+            <Component class="javax.swing.JTextField" name="txtCodigo">
               <Properties>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
@@ -339,7 +333,7 @@
                     </Property>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                       <Table columnCount="7" rowCount="0">
-                        <Column editable="true" title="ID" type="java.lang.Object"/>
+                        <Column editable="true" title="Codigo" type="java.lang.Object"/>
                         <Column editable="true" title="Nombres" type="java.lang.Object"/>
                         <Column editable="true" title="Apellidos" type="java.lang.Object"/>
                         <Column editable="true" title="DNI" type="java.lang.Object"/>

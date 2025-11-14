@@ -19,28 +19,35 @@ public class Consultas {
 
     //====================Para alumno====================
     public boolean insertarAlumno(String nombre, String apellidos, String dni, int edad, int celular, int estado) {
-        String sql = "INSERT INTO Alumno(nombre, apellidos, dni, edad, celular, estado) VALUES (?, ?, ?, ?, ?, ?)";
         try {
+            String sql = "INSERT INTO Alumno (codAlumno, nombre, apellidos, dni, edad, celular, estado) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
-            ps.setString(1, nombre);
-            ps.setString(2, apellidos);
-            ps.setString(3, dni);
-            ps.setInt(4, edad);
-            ps.setInt(5, celular);
-            ps.setInt(6, estado);
-            int filas = ps.executeUpdate();
-            ps.close();
-            return filas > 0;
-        } catch (SQLException e) {
-            System.out.println("Error al insertar alumno: " + e.getMessage());
-            return false;
+
+            ps.setInt(1, 0);
+            ps.setString(2, nombre);
+            ps.setString(3, apellidos);
+            ps.setString(4, dni);
+            ps.setInt(5, edad);
+            ps.setInt(6, celular);
+            ps.setInt(7, estado);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            JOptionPane.showMessageDialog(null, "⚠ ERROR: DNI duplicado.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al insertar alumno: " + e.getMessage());
         }
+        return false;
     }
 
     public boolean actualizarAlumno(int idAlumno, String nombre, String apellidos, String dni, int edad, int celular, int estado) {
         String sql = "UPDATE Alumno SET nombre=?, apellidos=?, dni=?, edad=?, celular=?, estado=? WHERE idAlumno=?";
-        try {
-            PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
+
+        try (PreparedStatement ps = conexion.getConnection().prepareStatement(sql)) {
+
             ps.setString(1, nombre);
             ps.setString(2, apellidos);
             ps.setString(3, dni);
@@ -48,38 +55,44 @@ public class Consultas {
             ps.setInt(5, celular);
             ps.setInt(6, estado);
             ps.setInt(7, idAlumno);
+
             int filas = ps.executeUpdate();
-            ps.close();
             return filas > 0;
+
         } catch (SQLException e) {
             System.out.println("Error al actualizar alumno: " + e.getMessage());
             return false;
         }
     }
 
-    public boolean eliminarAlumno(int idAlumno) {
-        String sql = "DELETE FROM Alumno WHERE idAlumno=?";
+    public boolean eliminarAlumno(int id) {
         try {
+            String sql = "DELETE FROM Alumno WHERE idAlumno = ?";
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
-            ps.setInt(1, idAlumno);
-            int filas = ps.executeUpdate();
-            ps.close();
-            return filas > 0;
-        } catch (SQLException e) {
-            System.out.println("Error al eliminar alumno: " + e.getMessage());
-            return false;
+
+            ps.setInt(1, id);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            JOptionPane.showMessageDialog(null,
+                    "No se puede eliminar. El alumno tiene matrículas registradas.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al eliminar alumno: " + e.getMessage());
         }
+        return false;
     }
 
     public ResultSet listarAlumnos() {
-        String sql = "SELECT * FROM Alumno";
+        ResultSet rs = null;
         try {
+            String sql = "SELECT idAlumno, codAlumno, nombre, apellidos, dni, edad, celular, estado FROM Alumno";
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
-            return ps.executeQuery();
-        } catch (SQLException e) {
+            rs = ps.executeQuery();
+        } catch (Exception e) {
             System.out.println("Error al listar alumnos: " + e.getMessage());
-            return null;
         }
+        return rs;
     }
 
     public ResultSet listarAlumnos2() {
@@ -178,7 +191,6 @@ public class Consultas {
         }
     }
 
-    
     public ResultSet buscarCursoPorId(int idCurso) {
         String sql = "SELECT * FROM Curso WHERE idCurso=?";
         try {
@@ -502,8 +514,7 @@ public class Consultas {
             return null;
         }
     }
-    
-    
+
     public ResultSet listarAlumnosPorCurso() {
         String sql = """
                      SELECT c.idCurso, c.asignatura, COUNT(A.idAlumno) as Cantidad_de_Alumnos
@@ -519,7 +530,7 @@ public class Consultas {
             return null;
         }
     }
-    
+
     // ==================== GETTER DE CONEXIÓN ====================
     public Connection getConnection() {
         return conexion.getConnection();
