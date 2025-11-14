@@ -17,10 +17,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
-/**
- *
- * @author leand
- */
+
 public class Excel {
     public void Excel(JTable t) throws IOException {
         JFileChooser chooser = new JFileChooser();
