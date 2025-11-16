@@ -25,11 +25,9 @@ public class Matricula extends javax.swing.JFrame {
         txtFecha.setEnabled(false);
         txtHora.setEnabled(false);
 
-        // Cargar combos
         cargarAlumnos();
         cargarCursos();
 
-        // Mostrar las matrículas
         mostrarMatriculas();
 
     }

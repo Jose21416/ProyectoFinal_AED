@@ -352,6 +352,31 @@ public class Consultas {
             return null;
         }
     }
+    
+    public ResultSet listarMatriculasparaRetiros() {
+        String sql = """
+        SELECT 
+            m.codMatricula,
+            a.codAlumno,
+            a.nombre AS alumno_nombre,
+            a.apellidos AS alumno_apellidos,
+            c.asignatura AS curso_asignatura,
+            m.fecha,
+            m.hora
+        FROM Matricula m
+        JOIN Alumno a ON m.idAlumno = a.idAlumno
+        JOIN Curso c ON m.idCurso = c.idCurso
+        WHERE a.estado = 1 OR a.estado = 2
+        ORDER BY m.codMatricula ASC
+    """;
+        try {
+            PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
+            return ps.executeQuery();
+        } catch (SQLException e) {
+            System.out.println("Error al listar matrículas: " + e.getMessage());
+            return null;
+        }
+    }
 
     // ==================== MÉTODOS PARA RETIRO ====================
     //  Registrar Retiro
@@ -404,6 +429,7 @@ public class Consultas {
     public ResultSet listarRetiros() {
         String sql = """
         SELECT 
+            r.idRetiro,         
             r.codRetiro,
             m.codMatricula,
             a.nombre AS alumno_nombre,
@@ -442,7 +468,6 @@ public class Consultas {
         return -1;
     }
 
-//  Eliminar Retiro (previa confirmación y estado == 2)
     public boolean eliminarRetiro(int idRetiro) {
         String consulta = """
         SELECT a.estado, a.idAlumno 
@@ -451,12 +476,14 @@ public class Consultas {
         JOIN Retiro r ON r.idMatricula = m.idMatricula
         WHERE r.idRetiro = ?
     """;
+
         String eliminar = "DELETE FROM Retiro WHERE idRetiro = ?";
         String reactivarAlumno = "UPDATE Alumno SET estado = 1 WHERE idAlumno = ?";
 
         try {
             Connection cn = conexion.getConnection();
 
+            // Verificar estado del alumno
             PreparedStatement ps1 = cn.prepareStatement(consulta);
             ps1.setInt(1, idRetiro);
             ResultSet rs = ps1.executeQuery();
@@ -465,24 +492,28 @@ public class Consultas {
                 int estado = rs.getInt("estado");
                 int idAlumno = rs.getInt("idAlumno");
 
+                // Solo permitir eliminar retiros de alumnos retirados
                 if (estado != 2) {
-                    System.out.println("No se puede eliminar. El alumno no está retirado.");
-                    ps1.close();
+                    System.out.println("El alumno no está retirado, no se puede eliminar el retiro.");
                     return false;
                 }
 
+                // Eliminar retiro
                 PreparedStatement ps2 = cn.prepareStatement(eliminar);
                 ps2.setInt(1, idRetiro);
                 int filas = ps2.executeUpdate();
 
+                // Reactivar alumno
                 PreparedStatement ps3 = cn.prepareStatement(reactivarAlumno);
-                ps3.setInt(0, idAlumno);
+                ps3.setInt(1, idAlumno); // ✔ posición corregida
                 ps3.executeUpdate();
 
                 ps1.close();
                 ps2.close();
                 ps3.close();
+
                 return filas > 0;
+
             } else {
                 System.out.println("No se encontró el retiro.");
                 return false;
