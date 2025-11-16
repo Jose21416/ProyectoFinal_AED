@@ -278,7 +278,6 @@ public class Consultas {
         }
     }
 
-// Solo se puede eliminar si el alumno no está retirado (estado ≠ 2)
     public boolean eliminarMatricula(int idMatricula) {
         String consultarEstado = """
         SELECT a.estado, a.idAlumno 
@@ -307,10 +306,17 @@ public class Consultas {
                 PreparedStatement ps2 = cn.prepareStatement(eliminar);
                 ps2.setInt(1, idMatricula);
                 int filas = ps2.executeUpdate();
+                ps2.close();
+
+                String sqlUpdate = "UPDATE Alumno SET estado=0 WHERE idAlumno=?";
+                PreparedStatement ps3 = cn.prepareStatement(sqlUpdate);
+                ps3.setInt(1, idAlumno);
+                ps3.executeUpdate();
+                ps3.close();
 
                 ps1.close();
-                ps2.close();
                 return filas > 0;
+
             } else {
                 System.out.println("No se encontró la matrícula especificada.");
                 return false;
@@ -326,6 +332,7 @@ public class Consultas {
         String sql = """
         SELECT 
             m.codMatricula,
+            a.codAlumno,
             a.nombre AS alumno_nombre,
             a.apellidos AS alumno_apellidos,
             c.asignatura AS curso_asignatura,
@@ -420,6 +427,21 @@ public class Consultas {
         }
     }
 
+    public int obtenerIdMatriculaPorCod(int codMatricula) {
+        String sql = "SELECT idMatricula FROM Matricula WHERE codMatricula=?";
+        try {
+            PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
+            ps.setInt(1, codMatricula);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("idMatricula");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener idMatricula: " + e.getMessage());
+        }
+        return -1;
+    }
+
 //  Eliminar Retiro (previa confirmación y estado == 2)
     public boolean eliminarRetiro(int idRetiro) {
         String consulta = """
@@ -453,9 +475,8 @@ public class Consultas {
                 ps2.setInt(1, idRetiro);
                 int filas = ps2.executeUpdate();
 
-                // Reactivar alumno (estado = 1)
                 PreparedStatement ps3 = cn.prepareStatement(reactivarAlumno);
-                ps3.setInt(1, idAlumno);
+                ps3.setInt(0, idAlumno);
                 ps3.executeUpdate();
 
                 ps1.close();

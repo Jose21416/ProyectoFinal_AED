@@ -51,11 +51,11 @@ public class Matricula extends javax.swing.JFrame {
 
     private void cargarAlumnos() {
         try {
-            ResultSet rs = consultas.listarAlumnos2();
+            ResultSet rs = consultas.listarAlumnos();
             cmbAlumno.removeAllItems();
-            cmbAlumno.addItem("Elija un alumno"); // Texto inicial
+            cmbAlumno.addItem("Elija un alumno");
             while (rs.next()) {
-                cmbAlumno.addItem(rs.getInt("idAlumno") + " - " + rs.getString("nombre") + " " + rs.getString("apellidos"));
+                cmbAlumno.addItem(rs.getInt("codAlumno") + " - " + rs.getString("nombre") + " " + rs.getString("apellidos"));
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al cargar alumnos: " + e.getMessage());
@@ -66,9 +66,9 @@ public class Matricula extends javax.swing.JFrame {
         try {
             ResultSet rs = consultas.listarCursos();
             cmbCurso.removeAllItems();
-            cmbCurso.addItem("Elija un curso"); // Texto inicial
+            cmbCurso.addItem("Elija un curso");
             while (rs.next()) {
-                cmbCurso.addItem(rs.getInt("idCurso") + " - " + rs.getString("asignatura"));
+                cmbCurso.addItem(rs.getInt("codCurso") + " - " + rs.getString("asignatura"));
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al cargar cursos: " + e.getMessage());
@@ -78,7 +78,7 @@ public class Matricula extends javax.swing.JFrame {
     private void mostrarMatriculas() {
         try {
             ResultSet rs = consultas.listarMatriculas();
-            modelo = new DefaultTableModel(new Object[]{"CÓDIGO", "Alumno", "Curso", "Fecha", "Hora"}, 0);
+            modelo = new DefaultTableModel(new Object[]{"Código Matrícula", "Alumno", "Curso", "Fecha", "Hora"}, 0);
             while (rs.next()) {
                 modelo.addRow(new Object[]{
                     rs.getInt("codMatricula"),
@@ -101,8 +101,28 @@ public class Matricula extends javax.swing.JFrame {
                 return;
             }
 
-            int idAlumno = Integer.parseInt(cmbAlumno.getSelectedItem().toString().split(" - ")[0]);
-            int idCurso = Integer.parseInt(cmbCurso.getSelectedItem().toString().split(" - ")[0]);
+            String codAlumnoStr = cmbAlumno.getSelectedItem().toString().split(" - ")[0];
+            String codCursoStr = cmbCurso.getSelectedItem().toString().split(" - ")[0];
+
+            int codAlumno = Integer.parseInt(codAlumnoStr);
+            int codCurso = Integer.parseInt(codCursoStr);
+
+            PreparedStatement ps1 = consultas.getConnection().prepareStatement(
+                    "SELECT idAlumno FROM Alumno WHERE codAlumno=?"
+            );
+            ps1.setInt(1, codAlumno);
+            ResultSet rs1 = ps1.executeQuery();
+            rs1.next();
+            int idAlumno = rs1.getInt("idAlumno");
+
+            PreparedStatement ps2 = consultas.getConnection().prepareStatement(
+                    "SELECT idCurso FROM Curso WHERE codCurso=?"
+            );
+            ps2.setInt(1, codCurso);
+            ResultSet rs2 = ps2.executeQuery();
+            rs2.next();
+            int idCurso = rs2.getInt("idCurso");
+
             boolean ok = consultas.insertarMatricula(idAlumno, idCurso);
 
             if (ok) {
@@ -128,8 +148,19 @@ public class Matricula extends javax.swing.JFrame {
                 return;
             }
 
-            int idMatricula = Integer.parseInt(tblMatrícula.getValueAt(fila, 0).toString());
-            int idCursoNuevo = Integer.parseInt(cmbCurso.getSelectedItem().toString().split(" - ")[0]);
+            int codMatricula = Integer.parseInt(tblMatrícula.getValueAt(fila, 0).toString());
+            int idMatricula = consultas.obtenerIdMatriculaPorCod(codMatricula);
+
+            String codCursoStr = cmbCurso.getSelectedItem().toString().split(" - ")[0];
+            int codCurso = Integer.parseInt(codCursoStr);
+
+            PreparedStatement ps = consultas.getConnection().prepareStatement(
+                    "SELECT idCurso FROM Curso WHERE codCurso=?"
+            );
+            ps.setInt(1, codCurso);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            int idCursoNuevo = rs.getInt("idCurso");
 
             boolean ok = consultas.actualizarMatricula(idMatricula, idCursoNuevo);
 
@@ -157,7 +188,15 @@ public class Matricula extends javax.swing.JFrame {
                 return;
             }
 
-            int idMatricula = Integer.parseInt(tblMatrícula.getValueAt(fila, 0).toString());
+            int codMatricula = Integer.parseInt(tblMatrícula.getValueAt(fila, 0).toString());
+
+            PreparedStatement ps = consultas.getConnection().prepareStatement(
+                    "SELECT idMatricula FROM Matricula WHERE codMatricula=?"
+            );
+            ps.setInt(1, codMatricula);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            int idMatricula = rs.getInt("idMatricula");
 
             // Confirmación antes de eliminar
             int confirmacion = JOptionPane.showConfirmDialog(
@@ -192,20 +231,40 @@ public class Matricula extends javax.swing.JFrame {
     private void buscarMatriculas(String texto) {
         try {
             String sql = """
-                SELECT m.idMatricula, a.nombre AS alumno_nombre, a.apellidos AS alumno_apellidos,
-                       c.asignatura AS curso_asignatura, m.fecha, m.hora
-                FROM Matricula m
-                JOIN Alumno a ON m.idAlumno = a.idAlumno
-                JOIN Curso c ON m.idCurso = c.idCurso
-                WHERE (a.nombre LIKE ? OR m.idMatricula LIKE ?)
-                    AND a.estado = 1
-            """;
+            SELECT 
+                m.codMatricula,
+                a.nombre AS alumno_nombre,
+                a.apellidos AS alumno_apellidos,
+                c.asignatura AS curso_asignatura,
+                m.fecha,
+                m.hora
+            FROM Matricula m
+            JOIN Alumno a ON m.idAlumno = a.idAlumno
+            JOIN Curso c ON m.idCurso = c.idCurso
+            WHERE 
+                (a.nombre LIKE ? 
+                 OR a.apellidos LIKE ?
+                 OR CONCAT(a.nombre, ' ', a.apellidos) LIKE ?
+                 OR m.codMatricula LIKE ?)
+                AND a.estado = 1
+            ORDER BY m.codMatricula ASC
+        """;
+
             PreparedStatement ps = consultas.getConnection().prepareStatement(sql);
-            ps.setString(1, "%" + texto + "%");
-            ps.setString(2, "%" + texto + "%");
+
+            String filtro = "%" + texto + "%";
+            ps.setString(1, filtro);  // nombre
+            ps.setString(2, filtro);  // apellidos
+            ps.setString(3, filtro);  // nombre + apellido
+            ps.setString(4, filtro);  // código matrícula
+
             ResultSet rs = ps.executeQuery();
 
-            modelo = new DefaultTableModel(new Object[]{"Código Matrícula", "Alumno", "Curso", "Fecha", "Hora"}, 0);
+            modelo = new DefaultTableModel(
+                    new Object[]{"Código Matrícula", "Alumno", "Curso", "Fecha", "Hora"},
+                    0
+            );
+
             while (rs.next()) {
                 modelo.addRow(new Object[]{
                     rs.getInt("codMatricula"),
@@ -215,7 +274,9 @@ public class Matricula extends javax.swing.JFrame {
                     rs.getTime("hora")
                 });
             }
+
             tblMatrícula.setModel(modelo);
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage());
         }
@@ -223,36 +284,40 @@ public class Matricula extends javax.swing.JFrame {
 
     private void seleccionarMatricula() {
         int fila = tblMatrícula.getSelectedRow();
+        if (fila < 0) {
+            JOptionPane.showMessageDialog(this, "Seleccione una matrícula de la tabla.");
+            return;
+        }
 
-        if (fila >= 0) {
-            // Obtener valores de la tabla
-            String alumno = tblMatrícula.getValueAt(fila, 1).toString();
-            String curso = tblMatrícula.getValueAt(fila, 2).toString();
-            String fecha = tblMatrícula.getValueAt(fila, 3).toString();
-            String hora = tblMatrícula.getValueAt(fila, 4).toString();
+        String alumnoTabla = tblMatrícula.getValueAt(fila, 1).toString().trim();
+        String cursoTabla = tblMatrícula.getValueAt(fila, 2).toString().trim();
+        String fecha = tblMatrícula.getValueAt(fila, 3).toString();
+        String hora = tblMatrícula.getValueAt(fila, 4).toString();
 
-            // Mostrar fecha y hora
-            cmbAlumno.setEnabled(false);
-            txtFecha.setText(fecha);
-            txtHora.setText(hora);
+        cmbAlumno.setEnabled(false);
+        txtFecha.setText(fecha);
+        txtHora.setText(hora);
 
-            // Seleccionar alumno en el combo
-            for (int i = 0; i < cmbAlumno.getItemCount(); i++) {
-                if (cmbAlumno.getItemAt(i).contains(alumno)) {
-                    cmbAlumno.setSelectedIndex(i);
-                    break;
-                }
+        for (int i = 1; i < cmbAlumno.getItemCount(); i++) {
+            String item = cmbAlumno.getItemAt(i);
+
+            String nombreItem = item.substring(item.indexOf("-") + 2).trim();
+
+            if (nombreItem.equalsIgnoreCase(alumnoTabla)) {
+                cmbAlumno.setSelectedIndex(i);
+                break;
             }
+        }
 
-            // Seleccionar curso en el combo
-            for (int i = 0; i < cmbCurso.getItemCount(); i++) {
-                if (cmbCurso.getItemAt(i).contains(curso)) {
-                    cmbCurso.setSelectedIndex(i);
-                    break;
-                }
+        for (int i = 1; i < cmbCurso.getItemCount(); i++) {
+            String item = cmbCurso.getItemAt(i);
+
+            String asignaturaItem = item.substring(item.indexOf("-") + 2).trim();
+
+            if (asignaturaItem.equalsIgnoreCase(cursoTabla)) {
+                cmbCurso.setSelectedIndex(i);
+                break;
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "Seleccione una fila válida de la tabla.");
         }
     }
 
@@ -351,6 +416,11 @@ public class Matricula extends javax.swing.JFrame {
         cmbCurso.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         cmbAlumno.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbAlumno.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbAlumnoActionPerformed(evt);
+            }
+        });
 
         tblMatrícula.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -383,7 +453,7 @@ public class Matricula extends javax.swing.JFrame {
 
         jLabel1.setBackground(new java.awt.Color(255, 255, 255));
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Busqueda de matrículas por ID o nombre de alumno:");
+        jLabel1.setText("Busqueda de matrículas por código o nombre de alumno:");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -391,14 +461,22 @@ public class Matricula extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(69, 69, 69)
-                        .addComponent(jLabel2)
-                        .addGap(77, 77, 77))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(btnRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(71, 71, 71)
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -409,37 +487,33 @@ public class Matricula extends javax.swing.JFrame {
                                     .addComponent(cmbCurso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(txtHora, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cmbAlumno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(48, 48, 48))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addComponent(btnRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(30, 30, 30)))))
+                                    .addComponent(cmbAlumno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(69, 69, 69)
+                                .addComponent(jLabel2)))
+                        .addGap(48, 48, 48)))
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(txtBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 692, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(25, 25, 25))
+                .addContainerGap(184, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(txtBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(53, 53, 53)
+                        .addComponent(jLabel2))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(41, 41, 41)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5)
                             .addComponent(cmbAlumno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -455,7 +529,7 @@ public class Matricula extends javax.swing.JFrame {
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel4)
                             .addComponent(txtHora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(55, 55, 55)
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -463,13 +537,11 @@ public class Matricula extends javax.swing.JFrame {
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
-                .addGap(25, 25, 25))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1040, 520));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1210, 520));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -513,6 +585,10 @@ public class Matricula extends javax.swing.JFrame {
     private void tblMatrículaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblMatrículaMouseClicked
         seleccionarMatricula();
     }//GEN-LAST:event_tblMatrículaMouseClicked
+
+    private void cmbAlumnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbAlumnoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cmbAlumnoActionPerformed
 
     /**
      * @param args the command line arguments
