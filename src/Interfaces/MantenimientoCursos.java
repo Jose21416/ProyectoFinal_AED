@@ -1,3 +1,4 @@
+
 package Interfaces;
 
 import Logica.Consultas;
@@ -5,15 +6,18 @@ import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
+
 public class MantenimientoCursos extends javax.swing.JFrame {
 
     Consultas consulta = new Consultas();
     DefaultTableModel modelo;
+    private int idCursoSeleccionado = -1;
 
     public MantenimientoCursos() {
         initComponents();
         this.setLocationRelativeTo(null);
         listarCursos();
+        txtCodigo.setEditable(false);
     }
 
     void limpiarCampos() {
@@ -22,6 +26,7 @@ public class MantenimientoCursos extends javax.swing.JFrame {
         txtCiclo.setText("");
         txtNcreditos.setText("");
         txtHoras.setText("");
+        idCursoSeleccionado = -1;
     }
 
     void listarCursos() {
@@ -32,16 +37,34 @@ public class MantenimientoCursos extends javax.swing.JFrame {
             ResultSet rs = consulta.listarCursos();
             while (rs.next()) {
                 Object[] fila = new Object[5];
-                fila[0] = rs.getInt("idCurso");
+                fila[0] = rs.getString("codCurso");
                 fila[1] = rs.getString("asignatura");
                 fila[2] = rs.getInt("ciclo");
                 fila[3] = rs.getInt("creditos");
                 fila[4] = rs.getInt("horas");
                 modelo.addRow(fila);
             }
+            rs.close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al listar cursos: " + e.getMessage());
         }
+    }
+
+    private int obtenerIdCursoPorCodigo(String codCurso) {
+        try {
+            ResultSet rs = consulta.listarCursos();
+            while (rs.next()) {
+                if (rs.getString("codCurso").equals(codCurso)) {
+                    int id = rs.getInt("idCurso");
+                    rs.close();
+                    return id;
+                }
+            }
+            rs.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al obtener ID: " + e.getMessage());
+        }
+        return -1;
     }
 
     boolean validarCampos() {
@@ -56,7 +79,7 @@ public class MantenimientoCursos extends javax.swing.JFrame {
             return false;
         }
         if (txtNcreditos.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Ingrese el N° de creditos del Curso");
+            JOptionPane.showMessageDialog(null, "Ingrese el N° de créditos del Curso");
             txtNcreditos.requestFocus();
             return false;
         }
@@ -65,6 +88,15 @@ public class MantenimientoCursos extends javax.swing.JFrame {
             txtHoras.requestFocus();
             return false;
         }
+        try {
+            Integer.parseInt(txtCiclo.getText().trim());
+            Integer.parseInt(txtNcreditos.getText().trim());
+            Integer.parseInt(txtHoras.getText().trim());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Ciclo, Créditos y Horas deben ser números válidos");
+            return false;
+        }
+
         return true;
     }
 
@@ -292,11 +324,20 @@ public class MantenimientoCursos extends javax.swing.JFrame {
     private void tblCursosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCursosMouseClicked
         int fila = tblCursos.getSelectedRow();
         if (fila >= 0) {
-            txtCodigo.setText(tblCursos.getValueAt(fila, 0).toString()); // Código
-            txtAsignatura.setText(tblCursos.getValueAt(fila, 1).toString()); // Asignatura
-            txtCiclo.setText(tblCursos.getValueAt(fila, 2).toString()); // Ciclo
-            txtNcreditos.setText(tblCursos.getValueAt(fila, 3).toString()); // Ncreditos
-            txtHoras.setText(tblCursos.getValueAt(fila, 4).toString()); // Horas
+            // Obtener el codCurso visible
+            String codCurso = tblCursos.getValueAt(fila, 0).toString();
+
+            // Buscar y guardar el idCurso interno
+            idCursoSeleccionado = obtenerIdCursoPorCodigo(codCurso);
+
+            // Mostrar el código en el campo (solo para visualización)
+            txtCodigo.setText(codCurso);
+
+            // Llenar los demás campos
+            txtAsignatura.setText(tblCursos.getValueAt(fila, 1).toString());
+            txtCiclo.setText(tblCursos.getValueAt(fila, 2).toString());
+            txtNcreditos.setText(tblCursos.getValueAt(fila, 3).toString());
+            txtHoras.setText(tblCursos.getValueAt(fila, 4).toString());
         }
     }//GEN-LAST:event_tblCursosMouseClicked
 
@@ -305,21 +346,21 @@ public class MantenimientoCursos extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        if (txtCodigo.getText().trim().isEmpty()) {
+        if (txtCodigo.getText().trim().isEmpty() || idCursoSeleccionado == -1) {
             JOptionPane.showMessageDialog(null, "Seleccione un Curso de la tabla para eliminar");
             return;
         }
 
-        int codigo = Integer.parseInt(txtCodigo.getText().trim());
-        String nombre = txtAsignatura.getText().trim();
+        String asignatura = txtAsignatura.getText().trim();
 
         int confirm = JOptionPane.showConfirmDialog(null,
-                "¿Está seguro de eliminar el Curso " + nombre + "?",
+                "¿Está seguro de eliminar el Curso " + asignatura + "?",
                 "Confirmar Eliminación",
                 JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            if (consulta.eliminarCurso(codigo)) {
+            // Usar el idCurso interno, NO el codCurso
+            if (consulta.eliminarCurso(idCursoSeleccionado)) {
                 JOptionPane.showMessageDialog(null, "Curso eliminado exitosamente");
                 listarCursos();
                 limpiarCampos();
@@ -332,16 +373,9 @@ public class MantenimientoCursos extends javax.swing.JFrame {
     private void btnRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarActionPerformed
         if (validarCampos()) {
             String asignatura = txtAsignatura.getText().trim();
-            int ciclo, creditos, horas;
-
-            try {
-                ciclo = Integer.parseInt(txtCiclo.getText().trim());
-                creditos = Integer.parseInt(txtNcreditos.getText().trim());
-                horas = Integer.parseInt(txtHoras.getText().trim());
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Los campos Ciclo, Créditos y Horas deben ser numéricos");
-                return;
-            }
+            int ciclo = Integer.parseInt(txtCiclo.getText().trim());
+            int creditos = Integer.parseInt(txtNcreditos.getText().trim());
+            int horas = Integer.parseInt(txtHoras.getText().trim());
 
             if (consulta.insertarCurso(asignatura, ciclo, creditos, horas)) {
                 JOptionPane.showMessageDialog(null, "Curso registrado exitosamente");
@@ -354,12 +388,13 @@ public class MantenimientoCursos extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRegistrarActionPerformed
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
-        if (txtCodigo.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Selecciona un curso de la lista para modificar");
+        if (txtCodigo.getText().trim().isEmpty() || idCursoSeleccionado == -1) {
+            JOptionPane.showMessageDialog(null, "Seleccione un curso de la tabla para modificar");
             return;
         }
+
         if (validarCampos()) {
-            int codigo = Integer.parseInt(txtCodigo.getText().trim());
+            // Usar el idCurso interno, NO el codCurso
             String asignatura = txtAsignatura.getText().trim();
             int ciclo = Integer.parseInt(txtCiclo.getText().trim());
             int creditos = Integer.parseInt(txtNcreditos.getText().trim());
@@ -371,7 +406,7 @@ public class MantenimientoCursos extends javax.swing.JFrame {
                     JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
-                if (consulta.actualizarCurso(codigo, asignatura, ciclo, creditos, horas)) {
+                if (consulta.actualizarCurso(idCursoSeleccionado, asignatura, ciclo, creditos, horas)) {
                     JOptionPane.showMessageDialog(null, "Curso modificado exitosamente");
                     listarCursos();
                     limpiarCampos();
@@ -386,39 +421,39 @@ public class MantenimientoCursos extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+    /* Set the Nimbus look and feel */
+    //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+    /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
+     */
+    try {
+        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            if ("Nimbus".equals(info.getName())) {
+                javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                break;
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MantenimientoCursos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MantenimientoCursos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MantenimientoCursos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MantenimientoCursos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MantenimientoCursos().setVisible(true);
-            }
-        });
+    } catch (ClassNotFoundException ex) {
+        java.util.logging.Logger.getLogger(MantenimientoCursos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    } catch (InstantiationException ex) {
+        java.util.logging.Logger.getLogger(MantenimientoCursos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    } catch (IllegalAccessException ex) {
+        java.util.logging.Logger.getLogger(MantenimientoCursos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        java.util.logging.Logger.getLogger(MantenimientoCursos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     }
+    //</editor-fold>
+    //</editor-fold>
+    //</editor-fold>
+    //</editor-fold>
+
+    /* Create and display the form */
+    java.awt.EventQueue.invokeLater(new Runnable() {
+        public void run() {
+            new MantenimientoCursos().setVisible(true);
+        }
+    });
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnEliminar;

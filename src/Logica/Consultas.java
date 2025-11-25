@@ -132,33 +132,31 @@ public class Consultas {
     // ==================== MÉTODOS PARA CURSO ====================
 
     public boolean insertarCurso(String asignatura, int ciclo, int creditos, int horas) {
-        String sql = "INSERT INTO Curso(asignatura, ciclo, creditos, horas) VALUES (?, ?, ?, ?)";
         try {
+            String sql = "INSERT INTO Curso (codCurso, asignatura, ciclo, creditos, horas) "
+                    + "VALUES (?, ?, ?, ?, ?)";
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
-            ps.setString(1, asignatura);
-            ps.setInt(2, ciclo);
-            ps.setInt(3, creditos);
-            ps.setInt(4, horas);
-            int filas = ps.executeUpdate();
-            ps.close();
-            return filas > 0;
-        } catch (SQLException e) {
-            System.out.println("Error al insertar curso: " + e.getMessage());
-            return false;
+            ps.setInt(1, 0); 
+            ps.setString(2, asignatura);
+            ps.setInt(3, ciclo);
+            ps.setInt(4, creditos);
+            ps.setInt(5, horas);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al insertar curso: " + e.getMessage());
         }
+        return false;
     }
 
     public boolean actualizarCurso(int idCurso, String asignatura, int ciclo, int creditos, int horas) {
         String sql = "UPDATE Curso SET asignatura=?, ciclo=?, creditos=?, horas=? WHERE idCurso=?";
-        try {
-            PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = conexion.getConnection().prepareStatement(sql)) {
             ps.setString(1, asignatura);
             ps.setInt(2, ciclo);
             ps.setInt(3, creditos);
             ps.setInt(4, horas);
             ps.setInt(5, idCurso);
             int filas = ps.executeUpdate();
-            ps.close();
             return filas > 0;
         } catch (SQLException e) {
             System.out.println("Error al actualizar curso: " + e.getMessage());
@@ -167,28 +165,30 @@ public class Consultas {
     }
 
     public boolean eliminarCurso(int idCurso) {
-        String sql = "DELETE FROM Curso WHERE idCurso=?";
         try {
+            String sql = "DELETE FROM Curso WHERE idCurso = ?";
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
             ps.setInt(1, idCurso);
-            int filas = ps.executeUpdate();
-            ps.close();
-            return filas > 0;
-        } catch (SQLException e) {
-            System.out.println("Error al eliminar curso: " + e.getMessage());
-            return false;
+            return ps.executeUpdate() > 0;
+        } catch (SQLIntegrityConstraintViolationException e) {
+            JOptionPane.showMessageDialog(null,
+                    "No se puede eliminar. El curso tiene matrículas asociadas.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al eliminar curso: " + e.getMessage());
         }
+        return false;
     }
 
     public ResultSet listarCursos() {
-        String sql = "SELECT * FROM Curso";
+        ResultSet rs = null;
         try {
+            String sql = "SELECT idCurso, codCurso, asignatura, ciclo, creditos, horas FROM Curso";
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
-            return ps.executeQuery();
-        } catch (SQLException e) {
+            rs = ps.executeQuery();
+        } catch (Exception e) {
             System.out.println("Error al listar cursos: " + e.getMessage());
-            return null;
         }
+        return rs;
     }
 
     public ResultSet buscarCursoPorId(int idCurso) {
