@@ -40,8 +40,3 @@ Thumbs.db
 *.iml
 .idea/
 .vscode/
-
-# ===============================
-# IGNORAR LIBRERÍAS DESCARGADAS
-# ===============================
-lib/

@@ -32,6 +32,7 @@ public class Retiro extends javax.swing.JFrame {
     public void limpiar() {
 
         cmbMatricula.setSelectedIndex(0);
+        cmbMatricula.setEnabled(true);
         txtFecha.setText("");
         txtHora.setText("");
         txtBusqueda.setText("");
@@ -48,12 +49,12 @@ public class Retiro extends javax.swing.JFrame {
 
     private void cargarMatriculas() {
         try {
-            ResultSet rs = consultas.listarMatriculas();
+            ResultSet rs = consultas.listarMatriculasparaRetiros();
             cmbMatricula.removeAllItems();
             cmbMatricula.addItem("Seleccione una matrícula");
             while (rs.next()) {
                 cmbMatricula.addItem(
-                        rs.getInt("idMatricula") + " - "
+                        rs.getInt("codMatricula") + " - "
                         + rs.getString("alumno_nombre") + " "
                         + rs.getString("alumno_apellidos") + " ("
                         + rs.getString("curso_asignatura") + ")"
@@ -67,11 +68,12 @@ public class Retiro extends javax.swing.JFrame {
     private void mostrarRetiros() {
         try {
             ResultSet rs = consultas.listarRetiros();
-            modelo = new DefaultTableModel(new Object[]{"ID retiro", "ID Matricula", "Alumno", "Curso","Fecha", "Hora"}, 0);
+            modelo = new DefaultTableModel(new Object[]{"ID Retiro","Código Retiro", "Código Matricula", "Alumno", "Curso", "Fecha", "Hora"}, 0);
             while (rs.next()) {
                 modelo.addRow(new Object[]{
                     rs.getInt("idRetiro"),
-                    rs.getInt("idMatricula"),
+                    rs.getInt("codRetiro"),
+                    rs.getInt("codMatricula"),
                     rs.getString("alumno_nombre") + " " + rs.getString("alumno_apellidos"),
                     rs.getString("curso_asignatura"),
                     rs.getDate("fecha"),
@@ -79,6 +81,10 @@ public class Retiro extends javax.swing.JFrame {
                 });
             }
             tblRetiros.setModel(modelo);
+            tblRetiros.getColumnModel().getColumn(0).setMaxWidth(0);
+            tblRetiros.getColumnModel().getColumn(0).setMinWidth(0);
+            tblRetiros.getColumnModel().getColumn(0).setPreferredWidth(0);
+            tblRetiros.getColumnModel().getColumn(0).setResizable(false);
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al mostrar retiros: " + e.getMessage());
@@ -92,7 +98,11 @@ public class Retiro extends javax.swing.JFrame {
                 return;
             }
 
-            int idMatricula = Integer.parseInt(cmbMatricula.getSelectedItem().toString().split(" - ")[0]);
+            String codMatStr = cmbMatricula.getSelectedItem().toString().split(" - ")[0];
+            int codMatricula = Integer.parseInt(codMatStr);
+
+            int idMatricula = consultas.obtenerIdMatriculaPorCod(codMatricula);
+
             boolean ok = consultas.insertarRetiro(idMatricula);
 
             if (ok) {
@@ -140,31 +150,54 @@ public class Retiro extends javax.swing.JFrame {
     private void buscarRetiros(String texto) {
         try {
             String sql = """
-                SELECT r.idRetiro, a.nombre AS alumno_nombre, a.apellidos AS alumno_apellidos,
-                       c.asignatura AS curso_asignatura, r.fecha, r.hora
-                FROM Retiro r
-                JOIN Matricula m ON r.idMatricula = m.idMatricula
-                JOIN Alumno a ON m.idAlumno = a.idAlumno
-                JOIN Curso c ON m.idCurso = c.idCurso
-                WHERE (a.nombre LIKE ? OR r.idRetiro LIKE ?)
-                  AND a.estado = 2
-            """;
+            SELECT 
+               r.codRetiro,
+               m.codMatricula,
+               a.nombre AS alumno_nombre,
+               a.apellidos AS alumno_apellidos,
+               c.asignatura AS curso_asignatura,
+               r.fecha,
+               r.hora
+            FROM Retiro r
+            JOIN Matricula m ON r.idMatricula = m.idMatricula
+            JOIN Alumno a ON m.idAlumno = a.idAlumno
+            JOIN Curso c ON m.idCurso = c.idCurso
+            WHERE 
+                r.codRetiro LIKE ?
+                OR a.nombre LIKE ?
+                OR a.apellidos LIKE ?
+                OR CONCAT(a.nombre, ' ', a.apellidos) LIKE ?
+            ORDER BY r.codRetiro ASC
+        """;
+
             PreparedStatement ps = consultas.getConnection().prepareStatement(sql);
-            ps.setString(1, "%" + texto + "%");
-            ps.setString(2, "%" + texto + "%");
+            String filtro = "%" + texto + "%";
+
+            ps.setString(1, filtro);
+            ps.setString(2, filtro);
+            ps.setString(3, filtro);
+            ps.setString(4, filtro);
+
             ResultSet rs = ps.executeQuery();
 
-            modelo = new DefaultTableModel(new Object[]{"ID", "Alumno", "Curso", "Fecha", "Hora"}, 0);
+            modelo = new DefaultTableModel(
+                    new Object[]{"Código Retiro", "Código Matrícula", "Alumno", "Curso", "Fecha", "Hora"},
+                    0
+            );
+
             while (rs.next()) {
                 modelo.addRow(new Object[]{
-                    rs.getInt("idRetiro"),
+                    rs.getInt("codRetiro"),
+                    rs.getInt("codMatricula"),
                     rs.getString("alumno_nombre") + " " + rs.getString("alumno_apellidos"),
                     rs.getString("curso_asignatura"),
                     rs.getDate("fecha"),
                     rs.getTime("hora")
                 });
             }
+
             tblRetiros.setModel(modelo);
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage());
         }
@@ -175,17 +208,18 @@ public class Retiro extends javax.swing.JFrame {
         if (fila >= 0) {
 
             //Tomamos los valores desde la tabla, así esté oculta se puede hace ya que solo es algo visual
-            String idMatriculaTabla = tblRetiros.getValueAt(fila, 1).toString();
+            String codMatricula = tblRetiros.getValueAt(fila, 2).toString();
             String fecha = tblRetiros.getValueAt(fila, 4).toString();
             String hora = tblRetiros.getValueAt(fila, 5).toString();
 
             // Muestra los valores en los campos
             txtFecha.setText(fecha);
             txtHora.setText(hora);
+            cmbMatricula.setEnabled(false);
 
             for (int i = 0; i < cmbMatricula.getItemCount(); i++) {
                 String item = cmbMatricula.getItemAt(i);
-                if (item.startsWith(idMatriculaTabla + " -")) {
+                if (item.startsWith(codMatricula + " -")) {
                     cmbMatricula.setSelectedIndex(i);
                     break;
                 }

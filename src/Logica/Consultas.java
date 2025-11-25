@@ -278,7 +278,6 @@ public class Consultas {
         }
     }
 
-// Solo se puede eliminar si el alumno no está retirado (estado ≠ 2)
     public boolean eliminarMatricula(int idMatricula) {
         String consultarEstado = """
         SELECT a.estado, a.idAlumno 
@@ -307,10 +306,17 @@ public class Consultas {
                 PreparedStatement ps2 = cn.prepareStatement(eliminar);
                 ps2.setInt(1, idMatricula);
                 int filas = ps2.executeUpdate();
+                ps2.close();
+
+                String sqlUpdate = "UPDATE Alumno SET estado=0 WHERE idAlumno=?";
+                PreparedStatement ps3 = cn.prepareStatement(sqlUpdate);
+                ps3.setInt(1, idAlumno);
+                ps3.executeUpdate();
+                ps3.close();
 
                 ps1.close();
-                ps2.close();
                 return filas > 0;
+
             } else {
                 System.out.println("No se encontró la matrícula especificada.");
                 return false;
@@ -325,7 +331,8 @@ public class Consultas {
     public ResultSet listarMatriculas() {
         String sql = """
         SELECT 
-            m.idMatricula,
+            m.codMatricula,
+            a.codAlumno,
             a.nombre AS alumno_nombre,
             a.apellidos AS alumno_apellidos,
             c.asignatura AS curso_asignatura,
@@ -335,7 +342,32 @@ public class Consultas {
         JOIN Alumno a ON m.idAlumno = a.idAlumno
         JOIN Curso c ON m.idCurso = c.idCurso
         WHERE a.estado = 1
-        ORDER BY m.idMatricula ASC
+        ORDER BY m.codMatricula ASC
+    """;
+        try {
+            PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
+            return ps.executeQuery();
+        } catch (SQLException e) {
+            System.out.println("Error al listar matrículas: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    public ResultSet listarMatriculasparaRetiros() {
+        String sql = """
+        SELECT 
+            m.codMatricula,
+            a.codAlumno,
+            a.nombre AS alumno_nombre,
+            a.apellidos AS alumno_apellidos,
+            c.asignatura AS curso_asignatura,
+            m.fecha,
+            m.hora
+        FROM Matricula m
+        JOIN Alumno a ON m.idAlumno = a.idAlumno
+        JOIN Curso c ON m.idCurso = c.idCurso
+        WHERE a.estado = 1 OR a.estado = 2
+        ORDER BY m.codMatricula ASC
     """;
         try {
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
@@ -397,8 +429,9 @@ public class Consultas {
     public ResultSet listarRetiros() {
         String sql = """
         SELECT 
-            r.idRetiro,
-            r.idMatricula,
+            r.idRetiro,         
+            r.codRetiro,
+            m.codMatricula,
             a.nombre AS alumno_nombre,
             a.apellidos AS alumno_apellidos,
             c.asignatura AS curso_asignatura,
@@ -409,7 +442,7 @@ public class Consultas {
         JOIN Alumno a ON m.idAlumno = a.idAlumno
         JOIN Curso c ON m.idCurso = c.idCurso
         WHERE a.estado = 2
-        ORDER BY r.idRetiro ASC
+        ORDER BY r.codRetiro ASC
     """;
         try {
             PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
@@ -420,7 +453,21 @@ public class Consultas {
         }
     }
 
-//  Eliminar Retiro (previa confirmación y estado == 2)
+    public int obtenerIdMatriculaPorCod(int codMatricula) {
+        String sql = "SELECT idMatricula FROM Matricula WHERE codMatricula=?";
+        try {
+            PreparedStatement ps = conexion.getConnection().prepareStatement(sql);
+            ps.setInt(1, codMatricula);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("idMatricula");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener idMatricula: " + e.getMessage());
+        }
+        return -1;
+    }
+
     public boolean eliminarRetiro(int idRetiro) {
         String consulta = """
         SELECT a.estado, a.idAlumno 
@@ -429,12 +476,14 @@ public class Consultas {
         JOIN Retiro r ON r.idMatricula = m.idMatricula
         WHERE r.idRetiro = ?
     """;
+
         String eliminar = "DELETE FROM Retiro WHERE idRetiro = ?";
         String reactivarAlumno = "UPDATE Alumno SET estado = 1 WHERE idAlumno = ?";
 
         try {
             Connection cn = conexion.getConnection();
 
+            // Verificar estado del alumno
             PreparedStatement ps1 = cn.prepareStatement(consulta);
             ps1.setInt(1, idRetiro);
             ResultSet rs = ps1.executeQuery();
@@ -443,25 +492,28 @@ public class Consultas {
                 int estado = rs.getInt("estado");
                 int idAlumno = rs.getInt("idAlumno");
 
+                // Solo permitir eliminar retiros de alumnos retirados
                 if (estado != 2) {
-                    System.out.println("No se puede eliminar. El alumno no está retirado.");
-                    ps1.close();
+                    System.out.println("El alumno no está retirado, no se puede eliminar el retiro.");
                     return false;
                 }
 
+                // Eliminar retiro
                 PreparedStatement ps2 = cn.prepareStatement(eliminar);
                 ps2.setInt(1, idRetiro);
                 int filas = ps2.executeUpdate();
 
-                // Reactivar alumno (estado = 1)
+                // Reactivar alumno
                 PreparedStatement ps3 = cn.prepareStatement(reactivarAlumno);
-                ps3.setInt(1, idAlumno);
+                ps3.setInt(1, idAlumno); // ✔ posición corregida
                 ps3.executeUpdate();
 
                 ps1.close();
                 ps2.close();
                 ps3.close();
+
                 return filas > 0;
+
             } else {
                 System.out.println("No se encontró el retiro.");
                 return false;
