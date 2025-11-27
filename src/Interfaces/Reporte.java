@@ -13,11 +13,16 @@ import java.awt.Paint;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.List;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -49,7 +54,9 @@ public final class Reporte extends javax.swing.JFrame {
         listarMatriculaPendiente();
         listarAlumnosPorCurso();
         listarRetirados(); 
-        mostrarGraficoAlumnosPorCurso();
+        cargarCursos();
+        mostrarGraficoGeneral();
+        agregarEventoLista();
     }
 
     void listarMatriculaPendiente() {
@@ -139,141 +146,239 @@ public final class Reporte extends javax.swing.JFrame {
         }
     }
     
-// 1. Método para obtener el conjunto de datos (Se llama una sola vez)
-private DefaultCategoryDataset obtenerDatosGraficoAlumnos() {
-    String url = "jdbc:mysql://localhost:3306/EduTek";
-    String usuario = "root";
-    String clave = "root";
+    
+//Grafico estatico de Estados de Alumnos
+    // 1. Método para obtener el conjunto de datos (Se llama una sola vez)
+    private DefaultCategoryDataset obtenerDatosGraficoAlumnos() {
+        String url = "jdbc:mysql://localhost:3306/EduTek";
+        String usuario = "root";
+        String clave = "root";
 
-    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
-    try (Connection con = DriverManager.getConnection(url, usuario, clave)) {
-        String sql = """
-            SELECT COUNT(CASE WHEN a.estado=1 THEN 1 END) AS matriculados,
-                   COUNT(CASE WHEN a.estado=0 THEN 1 END) AS registrados,
-                   COUNT(CASE WHEN a.estado=2 THEN 1 END) AS retirados
-            FROM Alumno a
-            """;
+        try (Connection con = DriverManager.getConnection(url, usuario, clave)) {
+            String sql = """
+                SELECT COUNT(CASE WHEN a.estado=1 THEN 1 END) AS matriculados,
+                       COUNT(CASE WHEN a.estado=0 THEN 1 END) AS registrados,
+                       COUNT(CASE WHEN a.estado=2 THEN 1 END) AS retirados
+                FROM Alumno a
+                """;
 
-        Statement st = con.createStatement();
-        ResultSet rs = st.executeQuery(sql);
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
 
-        while (rs.next()) { 
-            int matriculados = rs.getInt("matriculados");
-            int registrados = rs.getInt("registrados");
-            int retirados = rs.getInt("retirados");
+            while (rs.next()) { 
+                int matriculados = rs.getInt("matriculados");
+                int registrados = rs.getInt("registrados");
+                int retirados = rs.getInt("retirados");
 
-            dataset.addValue(registrados, "Alumnos", "Registrados");
-            dataset.addValue(matriculados, "Alumnos", "Matriculados");
-            dataset.addValue(retirados, "Alumnos", "Retirados");
+                dataset.addValue(registrados, "Alumnos", "Registrados");
+                dataset.addValue(matriculados, "Alumnos", "Matriculados");
+                dataset.addValue(retirados, "Alumnos", "Retirados");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar datos del gráfico: " + e.getMessage());
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al cargar datos del gráfico: " + e.getMessage());
+        return dataset;
     }
-    return dataset;
-}
 
-// 2. Método para crear y configurar el gráfico (Se llama una sola vez)
-private JFreeChart crearConfigurarGrafico(DefaultCategoryDataset dataset) {
-    JFreeChart chart = ChartFactory.createBarChart(
-        "Estado de Alumnos",
-        "Estado", // Eje X
-        "Cantidad de Alumnos", // Eje Y
-        dataset,
-        PlotOrientation.VERTICAL,
-        true, // Leyenda
-        true,
-        false
-    );
+    // 2. Método para crear y configurar el gráfico (Se llama una sola vez)
+    private JFreeChart crearConfigurarGrafico(DefaultCategoryDataset dataset) {
+        JFreeChart chart = ChartFactory.createBarChart(
+            "Estado de Alumnos",
+            "Estado", // Eje X
+            "Cantidad de Alumnos", // Eje Y
+            dataset,
+            PlotOrientation.VERTICAL,
+            true, // Leyenda
+            true,
+            false
+        );
 
-    CategoryPlot plot = chart.getCategoryPlot();
+        CategoryPlot plot = chart.getCategoryPlot();
 
-    BarRenderer renderer = new BarRenderer() {
-        private final Color[] colores = {
-            new Color(79, 129, 189), // Azul 
-            new Color(192, 80, 77), // Rojo 
-            new Color(155, 187, 89) // Verde 
+        BarRenderer renderer = new BarRenderer() {
+            private final Color[] colores = {
+                new Color(79, 129, 189), // Azul 
+                new Color(192, 80, 77), // Rojo 
+                new Color(155, 187, 89) // Verde 
+            };
+
+            @Override
+            public Paint getItemPaint(int row, int column) {
+                return colores[column % colores.length];
+            }
         };
 
-        @Override
-        public Paint getItemPaint(int row, int column) {
-            return colores[column % colores.length];
+        renderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+        renderer.setDefaultItemLabelsVisible(true);
+        renderer.setDefaultItemLabelFont(new Font("Tahoma", Font.BOLD, 14));
+        renderer.setDefaultPositiveItemLabelPosition(
+            new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.CENTER)
+        );
+
+        plot.setRenderer(renderer);
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+        plot.setOutlineVisible(false);
+
+        return chart;
+    }
+
+
+    // 3. Método para mostrar un JFreeChart en un JPanel dado (Se llama tres veces)
+    private void mostrarGraficoEnPanel(JPanel panelDestino, JFreeChart chart) {
+        ChartPanel panel = new ChartPanel(chart);
+        panel.setPreferredSize(new Dimension(1264, 583));
+
+        panelDestino.removeAll();
+        panelDestino.setLayout(new BorderLayout());
+        panelDestino.add(panel, BorderLayout.CENTER);
+        panelDestino.validate();
+        panelDestino.repaint();
+    }
+
+
+    // 4. Método principal que orquesta el proceso (Llamar desde tu constructor/inicialización)
+    public void cargarGraficosEnPaneles() {
+
+        // A. Obtener los datos (Solo una consulta a la BD)
+        DefaultCategoryDataset dataset = obtenerDatosGraficoAlumnos();
+
+        // B. Crear y configurar el gráfico (Solo una vez)
+        JFreeChart chart = crearConfigurarGrafico(dataset);
+
+        // C. Mostrar el mismo gráfico en cada JPanel (Reutilizando el objeto JFreeChart)
+        mostrarGraficoEnPanel(jEstadoAlumno1, chart);
+        mostrarGraficoEnPanel(jEstadoAlumno2, chart);
+        mostrarGraficoEnPanel(jEstadoAlumno3, chart);
+    }
+
+
+
+//Grafico Dinamico de Cursos
+
+    private void cargarCursos() {
+        String url = "jdbc:mysql://localhost:3306/EduTek";  // Cambia a tu base de datos
+        String usuario = "root";
+        String clave = "root";
+        DefaultListModel<String> modelo = new DefaultListModel<>();
+
+        try (Connection con = DriverManager.getConnection(url, usuario, clave)){
+
+            String sql = """
+             SELECT c.asignatura, COUNT(A.idAlumno) as Cantidad_de_Alumnos
+                FROM curso c
+                inner join Matricula M ON C.idCurso = M.idCurso
+                inner join Alumno A ON M.idAlumno = A.idAlumno
+                group by C.idCurso, C.asignatura""";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+
+            while (rs.next()) {
+                modelo.addElement(rs.getString("asignatura"));
+            }
+            jListarCursos.setModel(modelo);
+            con.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error cargando cursos: " + e.getMessage());
         }
-    };
-
-    renderer.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
-    renderer.setDefaultItemLabelsVisible(true);
-    renderer.setDefaultItemLabelFont(new Font("Tahoma", Font.BOLD, 14));
-    renderer.setDefaultPositiveItemLabelPosition(
-        new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.CENTER)
-    );
-
-    plot.setRenderer(renderer);
-    plot.setBackgroundPaint(Color.WHITE);
-    plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
-    plot.setOutlineVisible(false);
+    }
     
-    return chart;
-}
+    private void agregarEventoLista() {
+        jListarCursos.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    List<String> seleccionados = jListarCursos.getSelectedValuesList();
 
-
-// 3. Método para mostrar un JFreeChart en un JPanel dado (Se llama tres veces)
-private void mostrarGraficoEnPanel(JPanel panelDestino, JFreeChart chart) {
-    ChartPanel panel = new ChartPanel(chart);
-    panel.setPreferredSize(new Dimension(1264, 583));
-
-    panelDestino.removeAll();
-    panelDestino.setLayout(new BorderLayout());
-    panelDestino.add(panel, BorderLayout.CENTER);
-    panelDestino.validate();
-    panelDestino.repaint();
-}
-
-
-// 4. Método principal que orquesta el proceso (Llamar desde tu constructor/inicialización)
-public void cargarGraficosEnPaneles() {
+                    if (seleccionados.isEmpty()) {
+                        mostrarGraficoGeneral();
+                    } else {
+                        mostrarGraficoPorAreaAcademica(seleccionados);
+                    }
+                }
+            }
+        });
+    }
     
-    // A. Obtener los datos (Solo una consulta a la BD)
-    DefaultCategoryDataset dataset = obtenerDatosGraficoAlumnos();
+    private void mostrarGraficoGeneral() {
+        String url = "jdbc:mysql://localhost:3306/EduTek";
+        String usuario = "root";
+        String clave = "root";
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        try (Connection con = DriverManager.getConnection(url, usuario, clave)){
+
+            String sql = """
+                         SELECT c.asignatura, COUNT(A.idAlumno) as Cantidad_de_Alumnos
+                            FROM curso c
+                            inner join Matricula M ON C.idCurso = M.idCurso
+                            inner join Alumno A ON M.idAlumno = A.idAlumno
+                            group by C.idCurso, C.asignatura""";
+
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+
+            while (rs.next()) {
+              int cantidadAlumno = rs.getInt("Cantidad_de_Alumnos");
+              String nombreCurso = rs.getString("asignatura");
+              dataset.addValue(cantidadAlumno, "Cantidad_Alumno_Por_Curso", nombreCurso); 
+            }
+
+            con.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        actualizarGrafico(dataset, "Cantidad de Alumnos Por Curso");
+    }
     
-    // B. Crear y configurar el gráfico (Solo una vez)
-    JFreeChart chart = crearConfigurarGrafico(dataset);
-    
-    // C. Mostrar el mismo gráfico en cada JPanel (Reutilizando el objeto JFreeChart)
-    mostrarGraficoEnPanel(jEstadoAlumno1, chart);
-    mostrarGraficoEnPanel(jEstadoAlumno2, chart);
-    mostrarGraficoEnPanel(jEstadoAlumno3, chart);
-}
-     
-
-   private void mostrarGraficoAlumnosPorCurso() {
-    String url = "jdbc:mysql://localhost:3306/EduTek";  // Cambia a tu base de datos
-    String usuario = "root";
-    String clave = "root";
-
-    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
-    try (Connection con = DriverManager.getConnection(url, usuario, clave)) {
+    private void mostrarGraficoPorAreaAcademica(List<String> areasSeleccionadas) {
+        String url = "jdbc:mysql://localhost:3306/EduTek";
+        String usuario = "root";
+        String clave = "root";
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         
-        // CONSULTA SQL: Contar alumnos matriculados y no matriculados
-        String sql = """
-            SELECT c.asignatura, COUNT(A.idAlumno) as Cantidad_de_Alumnos
-                                 FROM curso c
-                                 inner join Matricula M ON C.idCurso = M.idCurso
-                                 inner join Alumno A ON M.idAlumno = A.idAlumno
-                                 group by C.idCurso, C.asignatura
-            """;
+        try (Connection con = DriverManager.getConnection(url, usuario, clave)){
+            String placeholders = String.join(",", areasSeleccionadas.stream().map(p -> "?")
+                   .toArray(String[]::new));
 
-        Statement st = con.createStatement();
-        ResultSet rs = st.executeQuery(sql);
+            String sql = "SELECT c.asignatura, COUNT(A.idAlumno) as Cantidad_de_Alumnos "
+                       + "FROM curso c "
+                       + "join Matricula M ON C.idCurso = M.idCurso "
+                       + "inner join Alumno A ON M.idAlumno = A.idAlumno "
+                       + "WHERE c.asignatura IN (" + placeholders + ") "
+                       + "group by C.idCurso, C.asignatura ";
+            
+            
+            PreparedStatement ps = con.prepareStatement(sql);
 
-        while (rs.next()) {
-            String curso = rs.getString("asignatura");
-            int cantidad = rs.getInt("Cantidad_de_Alumnos");
+            for (int i = 0; i < areasSeleccionadas.size(); i++) {
+                ps.setString(i + 1, areasSeleccionadas.get(i));
+            }
 
-            dataset.addValue(cantidad, "Alumnos", curso);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+              int cantidadAlumno = rs.getInt("Cantidad_de_Alumnos");
+              String nombreCurso = rs.getString("asignatura");
+              dataset.addValue(cantidadAlumno, "Cantidad_Alumno_Por_Curso", nombreCurso); 
+            }
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        actualizarGrafico(dataset, "Notas Promedio General por Área Académica");
+    }
+
+
+   private void actualizarGrafico(DefaultCategoryDataset dataset, String titulo) {
 
         JFreeChart chart = ChartFactory.createBarChart(
             "Cantidad de Alumnos por Curso",
@@ -325,13 +430,7 @@ public void cargarGraficosEnPaneles() {
         jCantidadDeAlumnosPorCurso.add(panel, BorderLayout.CENTER);
         jCantidadDeAlumnosPorCurso.validate();
         jCantidadDeAlumnosPorCurso.repaint(); 
-        
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al cargar gráfico: " + e.getMessage());
     }
-}
-   
    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -370,6 +469,9 @@ public void cargarGraficosEnPaneles() {
         btnAlumnosPorCurso = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jCantidadDeAlumnosPorCurso = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jListarCursos = new javax.swing.JList<>();
+        jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(0, 0, 102));
@@ -757,25 +859,44 @@ public void cargarGraficosEnPaneles() {
         jCantidadDeAlumnosPorCurso.setLayout(jCantidadDeAlumnosPorCursoLayout);
         jCantidadDeAlumnosPorCursoLayout.setHorizontalGroup(
             jCantidadDeAlumnosPorCursoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1264, Short.MAX_VALUE)
+            .addGap(0, 1000, Short.MAX_VALUE)
         );
         jCantidadDeAlumnosPorCursoLayout.setVerticalGroup(
             jCantidadDeAlumnosPorCursoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 589, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
+
+        jScrollPane3.setViewportView(jListarCursos);
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel1.setText("Seleccionar Curso");
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jCantidadDeAlumnosPorCurso, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(65, 65, 65)
+                        .addComponent(jLabel1)
+                        .addGap(66, 66, 66))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(30, 30, 30)))
+                .addComponent(jCantidadDeAlumnosPorCurso, javax.swing.GroupLayout.PREFERRED_SIZE, 1000, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jCantidadDeAlumnosPorCurso, javax.swing.GroupLayout.DEFAULT_SIZE, 589, Short.MAX_VALUE)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGap(161, 161, 161)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(241, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Grafico", jPanel5);
@@ -950,6 +1071,8 @@ public void cargarGraficosEnPaneles() {
     private javax.swing.JPanel jEstadoAlumno1;
     private javax.swing.JPanel jEstadoAlumno2;
     private javax.swing.JPanel jEstadoAlumno3;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JList<String> jListarCursos;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
@@ -964,6 +1087,7 @@ public void cargarGraficosEnPaneles() {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTabbedPane jTabbedPane1;

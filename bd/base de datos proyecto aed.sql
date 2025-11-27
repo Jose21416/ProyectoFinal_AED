@@ -40,19 +40,6 @@ create table Retiro(
     idMatricula int,
     foreign key (idMatricula) references Matricula(idMatricula)
 );
-
-
-select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,a.estado
-from alumno a left join matricula m on a.idAlumno=m.idAlumno 
-where a.estado=0;
-                     
-SELECT COUNT(CASE WHEN a.estado=1 THEN 1 END) AS matriculados,
-		COUNT(CASE WHEN a.estado=0 THEN 1 END) AS registrados,
-		COUNT(CASE WHEN a.estado=2 THEN 1 END) AS retirados
-		FROM Alumno a
-		LEFT JOIN Matricula m ON a.idAlumno = m.idAlumno
-		LEFT JOIN Retiro r ON m.idMatricula = r.idMatricula;
-        
         
 ----------------------------- TRIGGERS PARA LOS NÚMEROS CORRELATIVOS DE LAS DIFERENTES TABLAS ---------------------------------------
 
@@ -136,7 +123,6 @@ END$$
 DELIMITER ;
 
 
-
 INSERT INTO Alumno (nombre, apellidos, dni, edad, celular, estado) VALUES
 ('Carlos', 'Gómez Ruiz', '42157894', 20, 912345001, 0),
 ('María', 'López Díaz', '45812967', 22, 912345002, 0),
@@ -168,3 +154,11 @@ INSERT INTO Alumno (nombre, apellidos, dni, edad, celular, estado) VALUES
 ('Carolina', 'Santos Oliva', '51483927', 19, 912345028, 0),
 ('Gustavo', 'Palacios Peña', '83214765', 24, 912345029, 0),
 ('Mónica', 'Herrera Lozano', '67391542', 20, 912345030, 0);
+
+
+INSERT INTO Curso (codCurso, asignatura, ciclo, creditos, horas) VALUES 
+(101, 'Introducción a la Programación', 1, 4, 3),
+(102, 'Matemática Discreta', 1, 3, 4),
+(201, 'Bases de Datos I', 2, 5, 4),
+(202, 'Estructuras de Datos', 2, 4, 3),
+(301, 'Desarrollo Web Full Stack', 3, 5, 3);
