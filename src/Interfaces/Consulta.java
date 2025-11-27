@@ -5,21 +5,22 @@
 package Interfaces;
 
 import Logica.Consultas;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import javax.swing.JOptionPane;
-
-
+import javax.swing.table.DefaultTableModel;
+import Conexionbd.Conexionbd;
 
 public class Consulta extends javax.swing.JFrame {
-
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Consulta.class.getName());
 
     /**
      * Creates new form Consultas1
      */
     public Consulta() {
         initComponents();
+        cargartablaAlumno("");
+        cargartablaCurso("");
+        cargartablaMatricula("");
+        cargartablaRetiro("");
     }
 
     /**
@@ -39,20 +40,27 @@ public class Consulta extends javax.swing.JFrame {
         jLabel52 = new javax.swing.JLabel();
         txtAlumno = new javax.swing.JTextField();
         txtCurso = new javax.swing.JTextField();
-        btnconsultacurso = new javax.swing.JButton();
-        btnconsultaalumno = new javax.swing.JButton();
+        btncargardenuevocurso = new javax.swing.JButton();
+        btncargardenuevoalumno = new javax.swing.JButton();
+        btnconsultarAlumno = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tablaAlumno = new javax.swing.JTable();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tablaCurso = new javax.swing.JTable();
+        btnconsultarCurso = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
         jLabel47 = new javax.swing.JLabel();
         jLabel48 = new javax.swing.JLabel();
         jLabel49 = new javax.swing.JLabel();
         txtMatricula = new javax.swing.JTextField();
         txtRetiro = new javax.swing.JTextField();
-        btnconsultamatricula = new javax.swing.JButton();
-        btnconsultaretiro = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tablaMatricula = new javax.swing.JTable();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        tablaRetiro = new javax.swing.JTable();
         jPanel10 = new javax.swing.JPanel();
         jLabel43 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(0, 0, 102));
         setResizable(false);
 
@@ -66,27 +74,65 @@ public class Consulta extends javax.swing.JFrame {
 
         jLabel51.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         jLabel51.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel51.setText("Codigo de Alumno:");
+        jLabel51.setText("Código de Alumno:");
 
         jLabel52.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         jLabel52.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel52.setText("Codigo de Curso:");
+        jLabel52.setText("Código de Curso:");
 
-        btnconsultacurso.setBackground(new java.awt.Color(255, 255, 255));
-        btnconsultacurso.setForeground(new java.awt.Color(0, 0, 0));
-        btnconsultacurso.setText("Consultar Curso");
-        btnconsultacurso.addActionListener(new java.awt.event.ActionListener() {
+        btncargardenuevocurso.setBackground(new java.awt.Color(255, 255, 255));
+        btncargardenuevocurso.setForeground(new java.awt.Color(0, 0, 0));
+        btncargardenuevocurso.setText("Cargar tabla");
+        btncargardenuevocurso.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnconsultacursoActionPerformed(evt);
+                btncargardenuevocursoActionPerformed(evt);
             }
         });
 
-        btnconsultaalumno.setBackground(new java.awt.Color(255, 255, 255));
-        btnconsultaalumno.setForeground(new java.awt.Color(0, 0, 0));
-        btnconsultaalumno.setText("Consultar Alumno");
-        btnconsultaalumno.addActionListener(new java.awt.event.ActionListener() {
+        btncargardenuevoalumno.setBackground(new java.awt.Color(255, 255, 255));
+        btncargardenuevoalumno.setForeground(new java.awt.Color(0, 0, 0));
+        btncargardenuevoalumno.setText("Cargar tabla");
+        btncargardenuevoalumno.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnconsultaalumnoActionPerformed(evt);
+                btncargardenuevoalumnoActionPerformed(evt);
+            }
+        });
+
+        btnconsultarAlumno.setBackground(new java.awt.Color(255, 255, 255));
+        btnconsultarAlumno.setForeground(new java.awt.Color(0, 0, 0));
+        btnconsultarAlumno.setText("Consultar Alumno");
+        btnconsultarAlumno.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnconsultarAlumnoActionPerformed(evt);
+            }
+        });
+
+        tablaAlumno.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Codigo", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
+            }
+        ));
+        jScrollPane1.setViewportView(tablaAlumno);
+
+        tablaCurso.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Codigo", "Asignatura", "Ciclo", "Nº Créditos", "Horas"
+            }
+        ));
+        jScrollPane2.setViewportView(tablaCurso);
+
+        btnconsultarCurso.setBackground(new java.awt.Color(255, 255, 255));
+        btnconsultarCurso.setForeground(new java.awt.Color(0, 0, 0));
+        btnconsultarCurso.setText("Consultar Curso");
+        btnconsultarCurso.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnconsultarCursoActionPerformed(evt);
             }
         });
 
@@ -95,47 +141,65 @@ public class Consulta extends javax.swing.JFrame {
         jPanel9Layout.setHorizontalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGap(0, 50, Short.MAX_VALUE)
-                .addComponent(jLabel51)
-                .addGap(18, 18, 18)
-                .addComponent(txtAlumno, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(93, 93, 93)
-                .addComponent(jLabel52)
-                .addGap(18, 18, 18)
-                .addComponent(txtCurso, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(55, Short.MAX_VALUE))
-            .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGap(313, 313, 313)
+                .addGap(359, 359, 359)
                 .addComponent(jLabel50)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGap(139, 139, 139)
-                .addComponent(btnconsultaalumno, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnconsultacurso)
-                .addGap(153, 153, 153))
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel9Layout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 440, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 396, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel9Layout.createSequentialGroup()
+                                .addGap(36, 36, 36)
+                                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(btncargardenuevoalumno, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(jPanel9Layout.createSequentialGroup()
+                                        .addComponent(jLabel51)
+                                        .addGap(55, 55, 55)
+                                        .addComponent(txtAlumno, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(jPanel9Layout.createSequentialGroup()
+                                .addGap(61, 61, 61)
+                                .addComponent(btnconsultarAlumno, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel9Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnconsultarCurso, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(71, 71, 71)
+                                .addComponent(btncargardenuevocurso, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel9Layout.createSequentialGroup()
+                                .addGap(113, 113, 113)
+                                .addComponent(jLabel52)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 82, Short.MAX_VALUE)
+                                .addComponent(txtCurso, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(15, 15, 15)))
+                .addGap(28, 28, 28))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(12, 12, 12)
                 .addComponent(jLabel50)
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel51, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel52)
-                                .addComponent(txtCurso, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(txtAlumno, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(33, 33, 33)
-                        .addComponent(btnconsultaalumno, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(71, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnconsultacurso, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(62, 62, 62))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel52)
+                    .addComponent(txtCurso, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtAlumno, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel51))
+                .addGap(36, 36, 36)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btncargardenuevoalumno, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnconsultarAlumno, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btncargardenuevocurso, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnconsultarCurso, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(29, 29, 29)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap(105, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
@@ -147,8 +211,8 @@ public class Consulta extends javax.swing.JFrame {
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Alumno y Curso", jPanel8);
@@ -161,29 +225,43 @@ public class Consulta extends javax.swing.JFrame {
 
         jLabel48.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         jLabel48.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel48.setText("Numero de Matricula: ");
+        jLabel48.setText("Código de Matrícula: ");
 
         jLabel49.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         jLabel49.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel49.setText("Numero de Retiro:");
+        jLabel49.setText("Código de Retiro:");
 
-        btnconsultamatricula.setBackground(new java.awt.Color(255, 255, 255));
-        btnconsultamatricula.setForeground(new java.awt.Color(0, 0, 0));
-        btnconsultamatricula.setText("Consultar Matricula");
-        btnconsultamatricula.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnconsultamatriculaActionPerformed(evt);
+        txtMatricula.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtMatriculaKeyReleased(evt);
             }
         });
 
-        btnconsultaretiro.setBackground(new java.awt.Color(255, 255, 255));
-        btnconsultaretiro.setForeground(new java.awt.Color(0, 0, 0));
-        btnconsultaretiro.setText("Consultar Retiro");
-        btnconsultaretiro.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnconsultaretiroActionPerformed(evt);
+        txtRetiro.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtRetiroKeyReleased(evt);
             }
         });
+
+        tablaMatricula.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Codigo", "Alumno", "Curso", "Fecha", "Hora"
+            }
+        ));
+        jScrollPane3.setViewportView(tablaMatricula);
+
+        tablaRetiro.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Codigo", "Cod.Matricula", "Fecha", "Hora"
+            }
+        ));
+        jScrollPane4.setViewportView(tablaRetiro);
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -192,44 +270,45 @@ public class Consulta extends javax.swing.JFrame {
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addGap(267, 267, 267)
-                        .addComponent(jLabel47))
+                        .addGap(23, 23, 23)
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addComponent(jLabel48)
+                                .addGap(97, 97, 97)
+                                .addComponent(txtMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addGap(72, 72, 72)
+                                .addComponent(jLabel49)
+                                .addGap(72, 72, 72)
+                                .addComponent(txtRetiro, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addGap(60, 60, 60)
+                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 414, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
-                        .addComponent(jLabel48)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(61, 61, 61)
-                        .addComponent(jLabel49)
-                        .addGap(26, 26, 26)
-                        .addComponent(txtRetiro, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(58, Short.MAX_VALUE))
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addGap(109, 109, 109)
-                .addComponent(btnconsultamatricula, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnconsultaretiro)
-                .addGap(125, 125, 125))
+                        .addGap(326, 326, 326)
+                        .addComponent(jLabel47)))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
-                .addGap(12, 12, 12)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel47)
+                .addGap(22, 22, 22)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel48)
-                            .addComponent(txtMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel49)
-                            .addComponent(txtRetiro, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addGap(80, 80, 80)
-                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnconsultamatricula, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnconsultaretiro, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(79, Short.MAX_VALUE))
+                        .addGap(85, 85, 85)
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel48)
+                        .addComponent(txtMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel49)
+                        .addComponent(txtRetiro, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(34, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Matricula y Retiro", jPanel7);
@@ -262,151 +341,256 @@ public class Consulta extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 879, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jTabbedPane1)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 587, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnconsultamatriculaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnconsultamatriculaActionPerformed
+    private void btncargardenuevoalumnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncargardenuevoalumnoActionPerformed
         // TODO add your handling code here:
-        String idTexto = txtMatricula.getText().trim(); // Campo de número de matrícula
-        if (idTexto.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese el número de matrícula.");
-            return;
-        }
+        cargartablaAlumno("");
+    }//GEN-LAST:event_btncargardenuevoalumnoActionPerformed
 
+    private void btncargardenuevocursoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncargardenuevocursoActionPerformed
+        // TODO add your handling code here:
+        cargartablaCurso("");
+    }//GEN-LAST:event_btncargardenuevocursoActionPerformed
+
+    private void btnconsultarAlumnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnconsultarAlumnoActionPerformed
+        // TODO add your handling code here:
+        String codigo = txtAlumno.getText().trim(); // tin() para evitar espacios
+        if (codigo.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "A El campo de búsqueda está vacio. Ingrese un codigo.");
+        } else {
+            cargartablaAlumno(codigo);
+            // aqui internamente ya mostrará encontrado" o "no encontrado"
+        }
+    }//GEN-LAST:event_btnconsultarAlumnoActionPerformed
+
+    private void btnconsultarCursoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnconsultarCursoActionPerformed
+        // TODO add your handling code here:
+        String codigo = txtCurso.getText().trim(); // tin() para evitar espacios
+        if (codigo.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "A El campo de búsqueda está vacio. Ingrese un codigo.");
+        } else {
+            cargartablaCurso(codigo);
+            // aqui internamente ya mostrará encontrado" o "no encontrado"
+        }
+    }//GEN-LAST:event_btnconsultarCursoActionPerformed
+
+    private void txtMatriculaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMatriculaKeyReleased
+        // TODO add your handling code here:
+        String codigo = txtMatricula.getText();
+        cargartablaMatricula(codigo);
+    }//GEN-LAST:event_txtMatriculaKeyReleased
+
+    private void txtRetiroKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtRetiroKeyReleased
+        // TODO add your handling code here:
+        String codigo = txtRetiro.getText();
+        cargartablaRetiro(codigo);
+    }//GEN-LAST:event_txtRetiroKeyReleased
+
+    private void cargartablaAlumno(String filtro) {
+        DefaultTableModel modeloTabla = (DefaultTableModel) tablaAlumno.getModel();
+        modeloTabla.setRowCount(0);
+
+        PreparedStatement ps;
+        ResultSet rs;
+        ResultSetMetaData rsmd;
+        int columnas;
+        boolean encontrado = false; // bandera
+
+        int[] anchos = {120, 100, 100, 110, 70, 80, 70};
+        for (int i = 0; i < tablaAlumno.getColumnCount(); i++) {
+            tablaAlumno.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+        }
         try {
-            int id = Integer.parseInt(idTexto);
-            Consultas consultas = new Consultas();
-            ResultSet rs = consultas.listarMatriculas(); // Aquí podrías hacer un método buscarMatriculaPorId
-            boolean encontrado = false;
+            Conexionbd co = new Conexionbd();
+            Connection con = co.getConnection();
+
+            // Consulta con filtro (si está vacio, trae todos)
+            String sql;
+            if (filtro.equals("")) {
+                sql = "SELECT codAlumno, nombre, apellidos, dni, edad, celular, estado FROM Alumno";
+                ps = con.prepareStatement(sql);
+            } else {
+                sql = "SELECT codAlumno, nombre, apellidos, dni, edad, celular, estado FROM Alumno WHERE codAlumno LIKE ?";
+                ps = con.prepareStatement(sql);
+                ps.setString(1, "%" + filtro + "%"); // filtro seguro con PreparedStatement
+            }
+            rs = ps.executeQuery();
+            rsmd = rs.getMetaData();
+            columnas = rsmd.getColumnCount();
             while (rs.next()) {
-                if (rs.getInt("idMatricula") == id) {
-                    String datos = "Alumno: " + rs.getString("alumno_nombre") + " " + rs.getString("alumno_apellidos")
-                            + "\nCurso: " + rs.getString("curso_asignatura")
-                            + "\nFecha: " + rs.getDate("fecha")
-                            + "\nHora: " + rs.getTime("hora");
-                    JOptionPane.showMessageDialog(this, datos);
-                    encontrado = true;
-                    break;
+                Object[] fila = new Object[columnas];
+                for (int indice = 0; indice < columnas; indice++) {
+                    fila[indice] = rs.getObject(indice + 1);
+                }
+                modeloTabla.addRow(fila);
+                encontrado = true;
+            }
+            if (!filtro.equals("")) {
+                if (encontrado) {
+                    JOptionPane.showMessageDialog(null, "Alumno encontrado.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "A No se encontraron Alumnos con ese codigo.");
                 }
             }
-            if (!encontrado) {
-                JOptionPane.showMessageDialog(this, "Matrícula no encontrada.");
-            }
-        } catch (NumberFormatException | SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al consultar matrícula.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.toString());
         }
-    }//GEN-LAST:event_btnconsultamatriculaActionPerformed
+    }
 
-    private void btnconsultaalumnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnconsultaalumnoActionPerformed
-        // TODO add your handling code here:
+    private void cargartablaCurso(String filtro) {
+        DefaultTableModel modeloTabla = (DefaultTableModel) tablaCurso.getModel();
+        modeloTabla.setRowCount(0);
 
-        String idTexto = txtAlumno.getText().trim(); // Campo de código de alumno
-        if (idTexto.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese el código de alumno.");
-            return;
+        PreparedStatement ps;
+        ResultSet rs;
+        ResultSetMetaData rsmd;
+        int columnas;
+        boolean encontrado = false; // bandera
+
+        int[] anchos = {100, 150, 60, 80, 70};
+        for (int i = 0; i < tablaCurso.getColumnCount(); i++) {
+            tablaCurso.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
         }
-
         try {
-            int id = Integer.parseInt(idTexto);
-            Consultas consultas = new Consultas();
-            ResultSet rs = consultas.buscarAlumnoPorId(id);
-            if (rs != null && rs.next()) {
-                String datos = "Nombre: " + rs.getString("nombre")
-                        + "\nApellidos: " + rs.getString("apellidos")
-                        + "\nDNI: " + rs.getString("dni")
-                        + "\nEdad: " + rs.getInt("edad")
-                        + "\nCelular: " + rs.getInt("celular")
-                        + "\nEstado: " + estadoTexto(rs.getInt("estado"));
-                JOptionPane.showMessageDialog(this, datos);
+            Conexionbd co = new Conexionbd();
+            Connection con = co.getConnection();
+
+            // Consulta con filtro (si está vacio, trae todos)
+            String sql;
+            if (filtro.equals("")) {
+                sql = "SELECT codCurso, asignatura, ciclo, creditos, horas FROM Curso";
+                ps = con.prepareStatement(sql);
             } else {
-                JOptionPane.showMessageDialog(this, "Alumno no encontrado.");
+                sql = "SELECT codCurso, asignatura, ciclo, creditos, horas  FROM Curso WHERE codCurso LIKE ?";
+                ps = con.prepareStatement(sql);
+                ps.setString(1, "%" + filtro + "%"); // filtro seguro con PreparedStatement
             }
-        } catch (NumberFormatException | SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al consultar alumno.");
-        }
-    }//GEN-LAST:event_btnconsultaalumnoActionPerformed
-
-    private void btnconsultacursoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnconsultacursoActionPerformed
-        // TODO add your handling code here:
-        String idTexto = txtCurso.getText().trim(); // Campo de código de curso
-        if (idTexto.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese el código de curso.");
-            return;
-        }
-
-        try {
-            int id = Integer.parseInt(idTexto);
-            Consultas consultas = new Consultas();
-            ResultSet rs = consultas.buscarCursoPorId(id);
-            if (rs != null && rs.next()) {
-                String datos = "Asignatura: " + rs.getString("asignatura")
-                        + "\nCiclo: " + rs.getInt("ciclo")
-                        + "\nCréditos: " + rs.getInt("creditos")
-                        + "\nHoras: " + rs.getInt("horas");
-                JOptionPane.showMessageDialog(this, datos);
-            } else {
-                JOptionPane.showMessageDialog(this, "Curso no encontrado.");
-            }
-        } catch (NumberFormatException | SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al consultar curso.");
-        }
-    }//GEN-LAST:event_btnconsultacursoActionPerformed
-
-    private void btnconsultaretiroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnconsultaretiroActionPerformed
-        // TODO add your handling code here:
-        String idTexto = txtRetiro.getText().trim(); // Campo de número de retiro
-        if (idTexto.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese el número de retiro.");
-            return;
-        }
-        
-        
-        try {
-            int id = Integer.parseInt(idTexto);
-            Consultas consultas = new Consultas();
-            ResultSet rs = consultas.listarRetiros(); // Igual, podrías hacer buscarRetiroPorId
-            boolean encontrado = false;
+            rs = ps.executeQuery();
+            rsmd = rs.getMetaData();
+            columnas = rsmd.getColumnCount();
             while (rs.next()) {
-                if (rs.getInt("idRetiro") == id) {
-                    String datos = "Alumno: " + rs.getString("alumno_nombre") + " " + rs.getString("alumno_apellidos")
-                            + "\nCurso: " + rs.getString("curso_asignatura")
-                            + "\nFecha: " + rs.getDate("fecha")
-                            + "\nHora: " + rs.getTime("hora");
-                    JOptionPane.showMessageDialog(this, datos);
-                    encontrado = true;
-                    break;
+                Object[] fila = new Object[columnas];
+                for (int indice = 0; indice < columnas; indice++) {
+                    fila[indice] = rs.getObject(indice + 1);
+                }
+                modeloTabla.addRow(fila);
+                encontrado = true;
+            }
+            if (!filtro.equals("")) {
+                if (encontrado) {
+                    JOptionPane.showMessageDialog(null, "Curso encontrado.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "A No se encontraron Cursos con ese codigo.");
                 }
             }
-            if (!encontrado) {
-                JOptionPane.showMessageDialog(this, "Retiro no encontrado.");
-            }
-        } catch (NumberFormatException | SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al consultar retiro.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.toString());
         }
-    }//GEN-LAST:event_btnconsultaretiroActionPerformed
+    }
+    
+    private void cargartablaMatricula(String filtro) {
+        DefaultTableModel modeloTabla = (DefaultTableModel) tablaMatricula.getModel();
+        modeloTabla.setRowCount(0);
 
-    private String estadoTexto(int estado) {
-    return switch (estado) {
-        case 0 -> "Registrado";
-        case 1 -> "Matriculado";
-        case 2 -> "Retirado";
-        default -> "Desconocido";
-    };
-}
+        PreparedStatement ps;
+        ResultSet rs;
+        ResultSetMetaData rsmd;
+        int columnas;
+
+        int[] anchos = {100, 100, 100, 100, 100};
+        for (int i = 0; i < tablaMatricula.getColumnCount(); i++) {
+            tablaMatricula.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+        }
+        try {
+            Conexionbd co = new Conexionbd();
+            Connection con = co.getConnection();
+
+            String sql;
+            String baseSql = "SELECT m.codMatricula, a.apellidos, c.asignatura, m.fecha, m.hora "
+                       + "FROM Matricula m JOIN Alumno a ON m.idAlumno = a.idAlumno "
+                       + "JOIN Curso c ON m.idCurso = c.idCurso ";
+            
+            if (filtro.equals("")) {
+                sql = baseSql;
+                ps = con.prepareStatement(sql);
+            } else {
+                sql = baseSql + " WHERE codMatricula LIKE ?";
+                ps = con.prepareStatement(sql);
+                ps.setString(1, "%" + filtro + "%");
+            }
+
+            rs = ps.executeQuery();
+            rsmd = rs.getMetaData();
+            columnas = rsmd.getColumnCount();
+            while (rs.next()) {
+                Object[] fila = new Object[columnas];
+                for (int indice = 0; indice < columnas; indice++) {
+                    fila[indice] = rs.getObject(indice + 1);
+                }
+                modeloTabla.addRow(fila);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.toString());
+        }
+    }
+
+    private void cargartablaRetiro(String filtro) {
+        DefaultTableModel modeloTabla = (DefaultTableModel) tablaRetiro.getModel();
+        modeloTabla.setRowCount(0);
+
+        PreparedStatement ps;
+        ResultSet rs;
+        ResultSetMetaData rsmd;
+        int columnas;
+
+        int[] anchos = {100, 100, 100, 100};
+        for (int i = 0; i < tablaRetiro.getColumnCount(); i++) {
+            tablaRetiro.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+        }
+        try {
+            Conexionbd co = new Conexionbd();
+            Connection con = co.getConnection();
+
+            String sql;
+            String baseSql = "SELECT r.codRetiro, m.codMatricula, r.fecha, r.hora "
+                       + "FROM Retiro r JOIN Matricula m ON r.idMatricula = m.idMatricula ";
+            
+            if (filtro.equals("")) {
+                sql = baseSql;
+                ps = con.prepareStatement(sql);
+            } else {
+                sql = baseSql + " WHERE r.codRetiro LIKE ?";
+                ps = con.prepareStatement(sql);
+                ps.setString(1, "%" + filtro + "%");
+            }
+
+            rs = ps.executeQuery();
+            rsmd = rs.getMetaData();
+            columnas = rsmd.getColumnCount();
+            while (rs.next()) {
+                Object[] fila = new Object[columnas];
+                for (int indice = 0; indice < columnas; indice++) {
+                    fila[indice] = rs.getObject(indice + 1);
+                }
+                modeloTabla.addRow(fila);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.toString());
+        }
+    }
     
     /**
      * @param args the command line arguments
@@ -425,7 +609,7 @@ public class Consulta extends javax.swing.JFrame {
                 }
             }
         } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+
         }
         //</editor-fold>
 
@@ -434,10 +618,10 @@ public class Consulta extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnconsultaalumno;
-    private javax.swing.JButton btnconsultacurso;
-    private javax.swing.JButton btnconsultamatricula;
-    private javax.swing.JButton btnconsultaretiro;
+    private javax.swing.JButton btncargardenuevoalumno;
+    private javax.swing.JButton btncargardenuevocurso;
+    private javax.swing.JButton btnconsultarAlumno;
+    private javax.swing.JButton btnconsultarCurso;
     private javax.swing.JLabel jLabel43;
     private javax.swing.JLabel jLabel47;
     private javax.swing.JLabel jLabel48;
@@ -449,7 +633,15 @@ public class Consulta extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable tablaAlumno;
+    private javax.swing.JTable tablaCurso;
+    private javax.swing.JTable tablaMatricula;
+    private javax.swing.JTable tablaRetiro;
     private javax.swing.JTextField txtAlumno;
     private javax.swing.JTextField txtCurso;
     private javax.swing.JTextField txtMatricula;
