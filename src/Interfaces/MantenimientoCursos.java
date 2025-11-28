@@ -324,16 +324,11 @@ public class MantenimientoCursos extends javax.swing.JFrame {
     private void tblCursosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCursosMouseClicked
         int fila = tblCursos.getSelectedRow();
         if (fila >= 0) {
-            // Obtener el codCurso visible
             String codCurso = tblCursos.getValueAt(fila, 0).toString();
 
             // Buscar y guardar el idCurso interno
             idCursoSeleccionado = obtenerIdCursoPorCodigo(codCurso);
-
-            // Mostrar el código en el campo (solo para visualización)
             txtCodigo.setText(codCurso);
-
-            // Llenar los demás campos
             txtAsignatura.setText(tblCursos.getValueAt(fila, 1).toString());
             txtCiclo.setText(tblCursos.getValueAt(fila, 2).toString());
             txtNcreditos.setText(tblCursos.getValueAt(fila, 3).toString());
@@ -359,7 +354,6 @@ public class MantenimientoCursos extends javax.swing.JFrame {
                 JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            // Usar el idCurso interno, NO el codCurso
             if (consulta.eliminarCurso(idCursoSeleccionado)) {
                 JOptionPane.showMessageDialog(null, "Curso eliminado exitosamente");
                 listarCursos();
@@ -394,7 +388,6 @@ public class MantenimientoCursos extends javax.swing.JFrame {
         }
 
         if (validarCampos()) {
-            // Usar el idCurso interno, NO el codCurso
             String asignatura = txtAsignatura.getText().trim();
             int ciclo = Integer.parseInt(txtCiclo.getText().trim());
             int creditos = Integer.parseInt(txtNcreditos.getText().trim());

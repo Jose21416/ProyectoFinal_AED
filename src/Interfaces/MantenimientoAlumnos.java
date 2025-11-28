@@ -24,7 +24,7 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
     }
 
     void limpiarCampos() {
-        txtCodigo.setText(""); // ID
+        txtCodigo.setText(""); // Codigo
         txtNombre.setText(""); // Nombres
         txtApellidos.setText(""); // Apellidos
         txtDni.setText(""); // DNI
@@ -113,7 +113,6 @@ public class MantenimientoAlumnos extends javax.swing.JFrame {
             return false;
         }
 
-        // Validacion de edad y celular sean números
         try {
             Integer.parseInt(txtEdad.getText().trim());
             Integer.parseInt(txtCelular.getText().trim());

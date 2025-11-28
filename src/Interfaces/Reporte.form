@@ -152,7 +152,7 @@
                             </Property>
                             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                               <Table columnCount="7" rowCount="0">
-                                <Column editable="true" title="Id" type="java.lang.Object"/>
+                                <Column editable="true" title="codAlumno" type="java.lang.Object"/>
                                 <Column editable="true" title="Nombres" type="java.lang.Object"/>
                                 <Column editable="false" title="Apellidos" type="java.lang.Object"/>
                                 <Column editable="false" title="DNI" type="java.lang.Object"/>
@@ -362,7 +362,7 @@
                             </Property>
                             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                               <Table columnCount="7" rowCount="0">
-                                <Column editable="false" title="Id" type="java.lang.Object"/>
+                                <Column editable="false" title="codAlumno" type="java.lang.Object"/>
                                 <Column editable="false" title="Nombres" type="java.lang.Object"/>
                                 <Column editable="false" title="Apellidos" type="java.lang.Object"/>
                                 <Column editable="false" title="DNI" type="java.lang.Object"/>
@@ -582,7 +582,7 @@
                             </Property>
                             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                               <Table columnCount="7" rowCount="0">
-                                <Column editable="true" title="Id" type="java.lang.Object"/>
+                                <Column editable="true" title="codAlumno" type="java.lang.Object"/>
                                 <Column editable="true" title="Nombres" type="java.lang.Object"/>
                                 <Column editable="false" title="Apellidos" type="java.lang.Object"/>
                                 <Column editable="false" title="DNI" type="java.lang.Object"/>
@@ -797,7 +797,7 @@
                             </Property>
                             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                               <Table columnCount="3" rowCount="0">
-                                <Column editable="true" title="IdCurso" type="java.lang.Object"/>
+                                <Column editable="true" title="codCurso" type="java.lang.Object"/>
                                 <Column editable="true" title="Curso" type="java.lang.Object"/>
                                 <Column editable="true" title="Cantidad de Alumnos" type="java.lang.Object"/>
                               </Table>
@@ -947,9 +947,6 @@
         </Property>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Segoe UI" size="36" style="1"/>
-        </Property>
-        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="0" green="0" red="0" type="rgb"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Exportar todo"/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">

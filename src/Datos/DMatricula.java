@@ -2,7 +2,7 @@ package Datos;
 
 public class DMatricula {
 
-    private int numMatricula;   // correlativo (100001, 100002, …)
+    private int numMatricula;   // correlativo 
     private int codAlumno;      // id del alumno
     private int codCurso;       // id del curso
     private String fecha;       // "dd/MM/yyyy"

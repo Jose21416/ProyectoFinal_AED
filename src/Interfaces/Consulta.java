@@ -358,11 +358,13 @@ public class Consulta extends javax.swing.JFrame {
     private void btncargardenuevoalumnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncargardenuevoalumnoActionPerformed
         // TODO add your handling code here:
         cargartablaAlumno("");
+        txtAlumno.setText("");
     }//GEN-LAST:event_btncargardenuevoalumnoActionPerformed
 
     private void btncargardenuevocursoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncargardenuevocursoActionPerformed
         // TODO add your handling code here:
         cargartablaCurso("");
+        txtCurso.setText("");
     }//GEN-LAST:event_btncargardenuevocursoActionPerformed
 
     private void btnconsultarAlumnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnconsultarAlumnoActionPerformed

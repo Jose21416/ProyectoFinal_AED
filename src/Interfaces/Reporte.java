@@ -67,7 +67,7 @@ public final class Reporte extends javax.swing.JFrame {
             ResultSet rs = consulta.listarMatriculaPendiente();
             while (rs.next()) {
                 Object[] fila = new Object[7];
-                fila[0] = rs.getInt("idAlumno");
+                fila[0] = rs.getInt("codAlumno");
                 fila[1] = rs.getString("nombre");
                 fila[2] = rs.getString("apellidos");
                 fila[3]=rs.getString("dni");
@@ -91,7 +91,7 @@ public final class Reporte extends javax.swing.JFrame {
             ResultSet rs = consulta.listarMatriculaVigente();
             while (rs.next()) {
                 Object[] fila = new Object[7];
-                fila[0] = rs.getInt("idAlumno");
+                fila[0] = rs.getInt("codAlumno");
                 fila[1] = rs.getString("nombre");
                 fila[2] = rs.getString("apellidos");
                 fila[3]=rs.getString("dni");
@@ -113,7 +113,7 @@ public final class Reporte extends javax.swing.JFrame {
             ResultSet rs = consulta.listarRetirados();
             while (rs.next()) {
                 Object[] fila = new Object[7];
-                fila[0] = rs.getInt("idAlumno");
+                fila[0] = rs.getInt("codAlumno");
                 fila[1] = rs.getString("nombre");
                 fila[2] = rs.getString("apellidos");
                 fila[3]=rs.getString("dni");
@@ -136,7 +136,7 @@ public final class Reporte extends javax.swing.JFrame {
             ResultSet rs = consulta.listarAlumnosPorCurso();
             while (rs.next()) {
                 Object[] fila = new Object[3];
-                fila[0] = rs.getInt("idCurso");
+                fila[0] = rs.getInt("codCurso");
                 fila[1] = rs.getString("asignatura");
                 fila[2] = rs.getInt("Cantidad_de_Alumnos");
                 modelo.addRow(fila);
@@ -488,7 +488,7 @@ public final class Reporte extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Id", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
+                "codAlumno", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -596,7 +596,7 @@ public final class Reporte extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Id", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
+                "codAlumno", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -700,7 +700,7 @@ public final class Reporte extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Id", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
+                "codAlumno", "Nombres", "Apellidos", "DNI", "Edad", "Celular", "Estado"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -811,7 +811,7 @@ public final class Reporte extends javax.swing.JFrame {
 
             },
             new String [] {
-                "IdCurso", "Curso", "Cantidad de Alumnos"
+                "codCurso", "Curso", "Cantidad de Alumnos"
             }
         ));
         tblAlumnosPorCurso.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -921,7 +921,6 @@ public final class Reporte extends javax.swing.JFrame {
 
         jButton1.setBackground(new java.awt.Color(204, 204, 204));
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(0, 0, 0));
         jButton1.setText("Exportar todo");
         jButton1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jButton1.addActionListener(new java.awt.event.ActionListener() {

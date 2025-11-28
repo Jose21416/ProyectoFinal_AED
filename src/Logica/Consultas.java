@@ -527,7 +527,7 @@ public class Consultas {
 
     public ResultSet listarMatriculaPendiente() {
         String sql = """
-                     select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,a.estado
+                     select a.codAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,a.estado
                      from alumno a left join matricula m on a.idAlumno=m.idAlumno 
                      where a.estado=0""";
         try {
@@ -541,7 +541,7 @@ public class Consultas {
 
     public ResultSet listarMatriculaVigente() {
         String sql = """
-                     select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,
+                     select a.codAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,
                      a.estado from alumno a left join matricula m on a.idAlumno=m.idAlumno 
                      where a.estado=1""";
         try {
@@ -555,7 +555,7 @@ public class Consultas {
 
     public ResultSet listarRetirados() {
         String sql = """
-                     select a.idAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,
+                     select a.codAlumno,a.nombre,a.apellidos,a.dni,a.edad,a.celular,
                      a.estado from alumno a left join matricula m on a.idAlumno=m.idAlumno 
                      where a.estado=2""";
         try {
@@ -569,7 +569,7 @@ public class Consultas {
 
     public ResultSet listarAlumnosPorCurso() {
         String sql = """
-                     SELECT c.idCurso, c.asignatura, COUNT(A.idAlumno) as Cantidad_de_Alumnos
+                     SELECT c.codCurso, c.asignatura, COUNT(A.idAlumno) as Cantidad_de_Alumnos
                      FROM curso c
                      inner join Matricula M ON C.idCurso = M.idCurso
                      inner join Alumno A ON M.idAlumno = A.idAlumno

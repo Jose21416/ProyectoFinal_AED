@@ -2,7 +2,7 @@ package Datos;
 
 public class DRetiro {
 
-    private int numRetiro;       // correlativo (200001, 200002, …)
+    private int numRetiro;       // correlativo 
     private int numMatricula;    // matrícula asociada
     private String fecha;        // "dd/MM/yyyy"
     private String hora;         // "HH:mm:ss"

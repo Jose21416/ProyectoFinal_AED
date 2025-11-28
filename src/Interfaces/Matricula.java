@@ -169,6 +169,7 @@ public class Matricula extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Matrícula modificada correctamente.");
                 mostrarMatriculas();
                 limpiar();
+                cmbAlumno.setEnabled(true);
             } else {
                 JOptionPane.showMessageDialog(this, "No se pudo modificar la matrícula.");
             }
@@ -217,6 +218,7 @@ public class Matricula extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Matrícula eliminada correctamente.");
                 mostrarMatriculas();
                 limpiar();
+                cmbAlumno.setEnabled(true);
             } else {
                 JOptionPane.showMessageDialog(this, "No se pudo eliminar la matrícula.");
             }
